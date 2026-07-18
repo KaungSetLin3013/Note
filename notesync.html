@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes — Cloud Sync</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1c1c28;--surface3:#242434;
+  --accent:#00e5ff;--text:#f0f0fa;--muted:#8888aa;
+  --border:#2e2e42;--green:#00ff9d;--red:#ff4466;--yellow:#ffd166;--purple:#c084ff;
+  --shadow:rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+body.light-theme{
+  --bg:#f0f2f7;--surface:#ffffff;--surface2:#e8eaf2;--surface3:#dde0ec;
+  --accent:#0088bb;--text:#1a1a2e;--muted:#556;
+  --border:#c8cce0;--green:#007a4a;--red:#cc2244;--yellow:#996600;--purple:#7733cc;
+  --shadow:rgba(0,0,0,.12);
+  color-scheme:light;
+}
+body.light-theme .btn-primary{color:#fff;}
+body.light-theme .tab-badge{color:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;transition:background .25s,color .25s;}
+body::before{content:'';position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(0,229,255,.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-200px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(176,108,255,.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+/* Loading */
+.loading-bar{height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);background-size:200% 100%;position:fixed;top:0;left:0;right:0;z-index:999;display:none;animation:loadAnim 1.2s infinite;}
+@keyframes loadAnim{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.loading-bar.show{display:block;}
+
+/* Toast */
+#toast{position:fixed;bottom:28px;right:28px;z-index:600;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:320px;}
+#toast.show{opacity:1;}
+#toast.ok{border-color:var(--green);color:var(--green);}
+#toast.err{border-color:var(--red);color:var(--red);}
+
+/* Splash */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s;}
+#splash.hide{opacity:0;pointer-events:none;}
+.splash-logo{font-size:38px;font-weight:800;}
+.splash-logo span{color:var(--accent);}
+.splash-sub{color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace;}
+
+/* Layout */
+.app-wrap{display:flex;height:100vh;position:relative;z-index:1;}
+
+/* Sidebar */
+#sidebar{width:260px;min-width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:width .2s;}
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--border);gap:8px;}
+.logo{font-size:20px;font-weight:800;letter-spacing:-.5px;}
+.logo span{color:var(--accent);}
+.sidebar-header-right{display:flex;align-items:center;gap:6px;}
+.icon-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--muted);font-size:15px;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+#new-note-btn{background:var(--accent);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:#000;font-size:18px;font-weight:800;flex-shrink:0;}
+#new-note-btn:hover{background:#33eeff;transform:scale(1.07);}
+
+/* Search */
+.search-wrap{padding:10px 14px;border-bottom:1px solid var(--border);}
+.search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 32px;color:var(--text);font-family:'Syne',sans-serif;font-size:13px;outline:none;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238888aa' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+
+/* Tags filter */
+.tags-bar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;min-height:38px;}
+.tag-chip{padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tag-chip:hover{border-color:var(--accent);color:var(--accent);}
+.tag-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.08);}
+
+/* Notes list */
+#notes-list{flex:1;overflow-y:auto;padding:8px;}
+#notes-list::-webkit-scrollbar{width:4px;}
+#notes-list::-webkit-scrollbar-track{background:transparent;}
+#notes-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.note-item{padding:12px 13px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1px solid transparent;transition:all .15s;position:relative;}
+.note-item:hover{background:var(--surface2);border-color:var(--border);}
+.note-item.active{background:var(--surface2);border-color:rgba(0,229,255,.35);}
+.note-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--accent);border-radius:2px;}
+.ni-title{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.ni-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;line-height:1.4;}
+.ni-footer{display:flex;align-items:center;gap:6px;}
+.ni-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.ni-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.ni-tag{font-size:9px;padding:1px 6px;border-radius:10px;border:1px solid var(--border);color:var(--muted);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;flex-shrink:0;}
+.empty-list{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+.empty-list .icon{font-size:32px;margin-bottom:10px;}
+
+/* Sidebar bottom */
+.sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+#g-profile-btn{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:5px 11px 5px 5px;cursor:pointer;transition:border-color .2s;flex:1;min-width:0;}
+#g-profile-btn:hover{border-color:var(--accent);}
+.g-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4285F4,#34A853);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;}
+#g-label{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sort-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 9px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Syne',sans-serif;font-weight:600;}
+.sort-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Editor */
+#editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#editor-toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+#note-title-input{flex:1;border:none;background:none;font-size:20px;font-weight:800;color:var(--text);font-family:'Syne',sans-serif;outline:none;letter-spacing:-.3px;}
+#note-title-input::placeholder{color:var(--muted);}
+.toolbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.tbtn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;transition:all .15s;white-space:nowrap;}
+.tbtn:hover{border-color:var(--accent);color:var(--accent);}
+.tbtn.saving{opacity:.5;pointer-events:none;}
+.tbtn.ok{color:var(--green);border-color:var(--green);}
+.tbtn.danger{color:var(--red);border-color:var(--red);}
+.tbtn.danger:hover{background:var(--red);color:#fff;}
+
+/* Tags editor */
+#tags-editor{padding:8px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:38px;}
+.tag-pill{display:flex;align-items:center;gap:5px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.25);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent);}
+.tag-pill button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;padding:0;line-height:1;opacity:.6;}
+.tag-pill button:hover{opacity:1;color:var(--red);}
+#tag-add-input{background:none;border:none;outline:none;color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;min-width:80px;color:var(--muted);}
+#tag-add-input::placeholder{color:var(--border);}
+
+/* Formatting toolbar */
+#fmt-bar{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;}
+.fmt-btn{background:none;border:1px solid transparent;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--muted);font-size:13px;}
+.fmt-btn:hover{border-color:var(--border);color:var(--text);}
+.fmt-btn.active{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.3);color:var(--accent);}
+.fmt-divider{width:1px;height:18px;background:var(--border);margin:0 4px;}
+
+/* Note body */
+#note-body{flex:1;padding:20px 28px;resize:none;border:none;background:none;font-size:15px;color:var(--text);font-family:'Syne',sans-serif;line-height:1.9;outline:none;overflow-y:auto;}
+#note-body::placeholder{color:var(--muted);}
+
+/* Status bar */
+#status-bar{padding:8px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+#status-msg{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.status-right{display:flex;gap:12px;align-items:center;}
+#word-count{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+#char-count{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* Empty editor */
+#empty-pane{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);}
+.empty-pane-icon{font-size:48px;opacity:.3;}
+.empty-pane-text{font-size:14px;font-weight:600;}
+.empty-pane-sub{font-size:12px;font-family:'JetBrains Mono',monospace;}
+#create-first-btn{margin-top:8px;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .2s;}
+#create-first-btn:hover{background:#33eeff;transform:translateY(-1px);}
+
+/* Google dropdown */
+#g-dropdown{display:none;position:fixed;bottom:60px;left:14px;z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;width:280px;box-shadow:0 8px 32px var(--shadow);}
+#g-dropdown-backdrop{display:none;position:fixed;inset:0;z-index:299;}
+
+/* Settings modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:480px;position:relative;animation:slideUp .22s ease;max-height:90vh;overflow-y:auto;}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:18px;}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+.modal-close:hover{color:var(--text);}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:14px;font-weight:600;}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.lang-toggle{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:3px;}
+.lang-btn{padding:5px 12px;border:none;border-radius:6px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);}
+.lang-btn.active{background:var(--accent);color:#000;}
+
+/* Confirm modal */
+#confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:400;align-items:center;justify-content:center;padding:20px;}
+#confirm-modal.open{display:flex;}
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:360px;width:100%;animation:slideUp .2s ease;}
+.confirm-msg{font-size:14px;margin-bottom:18px;line-height:1.6;color:var(--text);}
+.confirm-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* Mobile */
+@media(max-width:640px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%);transition:transform .25s;}
+  #sidebar.open{transform:translateX(0);}
+  #sidebar-backdrop{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.5);}
+  #sidebar-backdrop.show{display:block;}
+  .mobile-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
+  .mobile-menu-btn{background:none;border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted);}
+  #editor-toolbar{padding:10px 14px;}
+  #note-title-input{font-size:16px;}
+  #note-body{padding:14px 16px;}
+  #tags-editor{padding:6px 14px;}
+  #status-bar{padding:6px 14px;}
+  #fmt-bar{padding:6px 14px;}
+}
+@media(min-width:641px){
+  .mobile-header{display:none;}
+  #sidebar-backdrop{display:none!important;}
+}
+</style>
+</head>
+<body>
+<div class="loading-bar" id="loading-bar"></div>
+<div id="toast"></div>
+
+<div id="splash">
+  <div class="splash-logo">Note<span>Sync</span></div>
+  <div class="splash-sub" id="splash-msg">Loading local database…</div>
+</div>
+
+<!-- Mobile header -->
+<div class="mobile-header">
+  <button class="mobile-menu-btn" onclick="openSidebar()">☰</button>
+  <div class="logo" style="font-size:17px">Note<span>Sync</span></div>
+  <button class="mobile-menu-btn" onclick="newNote()">+</button>
+</div>
+<div id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+<div class="app-wrap" id="main-app" style="display:none">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">Note<span>Sync</span></div>
+      <div class="sidebar-header-right">
+        <div class="icon-btn" onclick="openSettings()" title="Settings">⚙</div>
+        <button id="new-note-btn" onclick="newNote()" title="New note">+</button>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input class="search-input" type="text" id="search-input" placeholder="Search notes…" oninput="renderList()">
+    </div>
+
+    <div class="tags-bar" id="tags-bar"></div>
+
+    <div id="notes-list"></div>
+
+    <div class="sidebar-footer">
+      <div id="g-profile-btn" onclick="handleGProfileClick()">
+        <div class="g-avatar" id="g-avatar-inner">G</div>
+        <span id="g-label">Sign in</span>
+      </div>
+      <button class="sort-btn" onclick="cycleSort()" id="sort-btn" title="Sort">↓ Date</button>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div id="editor-pane">
+    <!-- Empty state -->
+    <div id="empty-pane">
+      <div class="empty-pane-icon">✎</div>
+      <div class="empty-pane-text">No note selected</div>
+      <div class="empty-pane-sub">Create one or pick from the list</div>
+      <button id="create-first-btn" onclick="newNote()">+ New Note</button>
+    </div>
+
+    <!-- Editor (hidden until note selected) -->
+    <div id="editor-inner" style="display:none;flex-direction:column;height:100%;overflow:hidden;display:none;">
+      <div id="editor-toolbar">
+        <input id="note-title-input" type="text" placeholder="Untitled note" oninput="onTitleChange()">
+        <div class="toolbar-right">
+          <button class="tbtn" id="save-btn" onclick="saveNoteToDrive()">☁ Save</button>
+          <button class="tbtn danger" onclick="deleteCurrentNote()">Delete</button>
+        </div>
+      </div>
+
+      <div id="tags-editor">
+        <input id="tag-add-input" type="text" placeholder="+ add tag…" onkeydown="handleTagInput(event)">
+      </div>
+
+      <div id="fmt-bar">
+        <button class="fmt-btn" title="Bold" onclick="fmt('**','**')"><b>B</b></button>
+        <button class="fmt-btn" title="Italic" onclick="fmt('_','_')"><i>I</i></button>
+        <button class="fmt-btn" title="Code" onclick="fmt('`','`')"><span style="font-family:monospace">&#x7B;&#x7D;</span></button>
+        <div class="fmt-divider"></div>
+        <button class="fmt-btn" title="H1" onclick="fmtLine('# ')"><b>H1</b></button>
+        <button class="fmt-btn" title="H2" onclick="fmtLine('## ')"><b>H2</b></button>
+        <button class="fmt-btn" title="List" onclick="fmtLine('- ')">☰</button>
+        <button class="fmt-btn" title="Checkbox" onclick="fmtLine('- [ ] ')">☐</button>
+        <button class="fmt-btn" title="Quote" onclick="fmtLine('> ')">❝</button>
+        <div class="fmt-divider"></div>
+        <button class="fmt-btn" title="Code block" onclick="fmtBlock()">⌨</button>
+      </div>
+
+      <textarea id="note-body" placeholder="Start writing… (Markdown supported)" oninput="onBodyChange()"></textarea>
+
+      <div id="status-bar">
+        <span id="status-msg"></span>
+        <div class="status-right">
+          <span id="word-count"></span>
+          <span id="char-count"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Google dropdown -->
+<div id="g-dropdown">
+  <div id="g-signed-out">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px">G</div>
+      <div>
+        <div style="font-size:14px;font-weight:700">Google Drive Sync</div>
+        <div style="font-size:11px;color:var(--muted)">Not signed in</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Sign in to back up and restore all notes via Google Drive.</p>
+    <button onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/></svg>
+      Sign in with Google
+    </button>
+  </div>
+  <div id="g-signed-in" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <img id="g-photo" src="" width="36" height="36" style="border-radius:50%;border:2px solid var(--accent);object-fit:cover">
+      <div style="min-width:0">
+        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="g-name">—</div>
+        <div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="g-email">—</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <button onclick="backupAllToDrive()" style="width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">☁ Backup All Notes</button>
+      <button onclick="restoreFromDrive()" style="width:100%;padding:10px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">☁ Restore from Drive</button>
+    </div>
+    <div id="g-status" style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;min-height:16px;margin-bottom:10px"></div>
+    <button onclick="signOutGoogle()" style="width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer">Sign out</button>
+  </div>
+</div>
+<div id="g-backdrop" style="display:none;position:fixed;inset:0;z-index:299" onclick="closeGDropdown()"></div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <div class="modal-title">Settings</div>
+    <div class="setting-row">
+      <div><div class="setting-label">Theme</div><div class="setting-sub">Dark or light mode</div></div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="theme-dark" onclick="setTheme('dark')">🌙 Dark</button>
+        <button class="lang-btn" id="theme-light" onclick="setTheme('light')">☀ Light</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">Sort notes by</div></div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="sort-date" onclick="setSort('date')">Date</button>
+        <button class="lang-btn" id="sort-title" onclick="setSort('title')">Title</button>
+        <button class="lang-btn" id="sort-created" onclick="setSort('created')">Created</button>
+      </div>
+    </div>
+    <div class="setting-row" style="border-bottom:none;flex-direction:column;align-items:stretch;gap:10px;padding-top:18px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Data & Backup</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--muted)">Export all notes as JSON</span>
+          <button onclick="exportJSON()" class="tbtn" style="font-size:12px">⬇ Export</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--muted)">Import notes from JSON</span>
+          <label class="tbtn" style="font-size:12px;cursor:pointer">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importJSON(this)"></label>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--red)">Delete all notes</span>
+          <button onclick="nukeAll()" class="tbtn danger" style="font-size:12px">Delete All</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:10px 12px;background:var(--surface2);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8" id="data-stats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="tbtn" id="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="tbtn danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// IndexedDB (same pattern as ShiftLog)
+// ═══════════════════════════════════════
+const DB_NAME='NotesSyncDB', DB_VER=1;
+let db;
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('notes')){
+        const ns=d.createObjectStore('notes',{keyPath:'id'});
+        ns.createIndex('updatedAt','updatedAt');
+        ns.createIndex('createdAt','createdAt');
+      }
+      if(!d.objectStoreNames.contains('settings'))
+        d.createObjectStore('settings',{keyPath:'key'});
+    };
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+function dbGetAll(s){return new Promise((res,rej)=>{const tx=db.transaction(s,'readonly');const r=tx.objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function dbPut(s,o){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');const r=tx.objectStore(s).put(o);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function dbDelete(s,id){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');const r=tx.objectStore(s).delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
+function dbClear(s){return new Promise((res,rej)=>{const tx=db.transaction(s,'readwrite');const r=tx.objectStore(s).clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+// ═══════════════════════════════════════
+// State
+// ═══════════════════════════════════════
+let notes=[], activeId=null, settings={theme:'dark',sort:'date'};
+let activeTagFilter=null, autoSaveTimer=null;
+let gToken=null, gUser=null, gTokenClient=null;
+
+const now=()=>Date.now();
+const todayStr=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+function fmtDate(ts){
+  const d=new Date(ts), today=new Date(), diff=today-d;
+  if(diff<60000) return 'just now';
+  if(diff<3600000) return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000) return Math.floor(diff/3600000)+'h ago';
+  if(diff<604800000) return Math.floor(diff/86400000)+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function loading(on){document.getElementById('loading-bar').classList.toggle('show',on);}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2800);}
+
+// ═══════════════════════════════════════
+// Notes CRUD
+// ═══════════════════════════════════════
+async function loadNotes(){
+  const raw=await dbGetAll('notes');
+  notes=raw;
+}
+
+async function newNote(){
+  closeSidebar();
+  const n={id:genId(),title:'',body:'',tags:[],createdAt:now(),updatedAt:now(),driveFileId:null};
+  await dbPut('notes',n);
+  notes.unshift(n);
+  renderList();
+  selectNote(n.id);
+  document.getElementById('note-title-input').focus();
+  updateDataStats();
+}
+
+async function deleteCurrentNote(){
+  if(!activeId)return;
+  confirm2('Delete this note? This cannot be undone.',async()=>{
+    await dbDelete('notes',activeId);
+    notes=notes.filter(x=>x.id!==activeId);
+    activeId=null;
+    renderList();
+    showEmptyPane();
+    updateDataStats();
+    toast('Note deleted');
+  });
+}
+
+function activeNote(){return notes.find(x=>x.id===activeId);}
+
+function onTitleChange(){
+  const n=activeNote();if(!n)return;
+  n.title=document.getElementById('note-title-input').value;
+  n.updatedAt=now();
+  renderList();
+  scheduleAutoSave();
+}
+function onBodyChange(){
+  const n=activeNote();if(!n)return;
+  n.body=document.getElementById('note-body').value;
+  n.updatedAt=now();
+  renderList();
+  updateWordCount();
+  scheduleAutoSave();
+}
+function scheduleAutoSave(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>saveCurrentNoteLocally(),1500);
+}
+async function saveCurrentNoteLocally(){
+  const n=activeNote();if(!n)return;
+  await dbPut('notes',n);
+  setStatus('Saved locally');
+}
+
+// ═══════════════════════════════════════
+// Tags
+// ═══════════════════════════════════════
+function handleTagInput(e){
+  if(e.key!=='Enter'&&e.key!==',')return;
+  e.preventDefault();
+  const val=e.target.value.trim().replace(/^#/,'').toLowerCase();
+  if(!val)return;
+  const n=activeNote();if(!n)return;
+  if(!n.tags)n.tags=[];
+  if(!n.tags.includes(val))n.tags.push(val);
+  e.target.value='';
+  renderTagsEditor();
+  renderTagsBar();
+  scheduleAutoSave();
+}
+function removeTag(tag){
+  const n=activeNote();if(!n)return;
+  n.tags=(n.tags||[]).filter(t=>t!==tag);
+  renderTagsEditor();
+  renderTagsBar();
+  scheduleAutoSave();
+}
+function renderTagsEditor(){
+  const n=activeNote();
+  const el=document.getElementById('tags-editor');
+  const input=document.getElementById('tag-add-input');
+  const existing=el.querySelectorAll('.tag-pill');
+  existing.forEach(x=>x.remove());
+  (n?.tags||[]).forEach(tag=>{
+    const pill=document.createElement('div');
+    pill.className='tag-pill';
+    pill.innerHTML=`#${tag}<button onclick="removeTag('${tag}')">✕</button>`;
+    el.insertBefore(pill,input);
+  });
+}
+function renderTagsBar(){
+  // Collect all unique tags
+  const allTags=new Set();
+  notes.forEach(n=>(n.tags||[]).forEach(t=>allTags.add(t)));
+  const bar=document.getElementById('tags-bar');
+  bar.innerHTML='';
+  if(!allTags.size)return;
+  const allBtn=document.createElement('div');
+  allBtn.className='tag-chip'+(activeTagFilter===null?' active':'');
+  allBtn.textContent='All';
+  allBtn.onclick=()=>{activeTagFilter=null;renderTagsBar();renderList();};
+  bar.appendChild(allBtn);
+  allTags.forEach(tag=>{
+    const chip=document.createElement('div');
+    chip.className='tag-chip'+(activeTagFilter===tag?' active':'');
+    chip.textContent='#'+tag;
+    chip.onclick=()=>{activeTagFilter=activeTagFilter===tag?null:tag;renderTagsBar();renderList();};
+    bar.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════════════════
+// Note list rendering
+// ═══════════════════════════════════════
+function getSortedFiltered(){
+  const q=document.getElementById('search-input').value.toLowerCase().trim();
+  let list=notes.filter(n=>{
+    if(activeTagFilter&&!(n.tags||[]).includes(activeTagFilter))return false;
+    if(!q)return true;
+    return (n.title||'').toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q);
+  });
+  const s=settings.sort||'date';
+  if(s==='title') list.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
+  else if(s==='created') list.sort((a,b)=>b.createdAt-a.createdAt);
+  else list.sort((a,b)=>b.updatedAt-a.updatedAt);
+  return list;
+}
+
+function renderList(){
+  const el=document.getElementById('notes-list');
+  const list=getSortedFiltered();
+  if(!list.length){
+    el.innerHTML=`<div class="empty-list"><div class="icon">📋</div>${notes.length?'No matches':'No notes yet'}</div>`;
+    return;
+  }
+  el.innerHTML=list.map(n=>{
+    const preview=(n.body||'').replace(/[#*`>\-\[\]]/g,'').trim().slice(0,80)||'No content';
+    const tagsHtml=(n.tags||[]).slice(0,3).map(t=>`<span class="ni-tag">#${t}</span>`).join('');
+    return `<div class="note-item${n.id===activeId?' active':''}" onclick="selectNote('${n.id}')">
+      <div class="ni-title">${esc(n.title||'Untitled')}</div>
+      <div class="ni-preview">${esc(preview)}</div>
+      <div class="ni-footer">
+        <span class="ni-date">${fmtDate(n.updatedAt)}</span>
+        <div class="ni-tags">${tagsHtml}</div>
+        ${n.driveFileId?'<div class="sync-dot" title="Synced to Drive"></div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ═══════════════════════════════════════
+// Select / show note
+// ═══════════════════════════════════════
+function selectNote(id){
+  activeId=id;
+  const n=notes.find(x=>x.id===id);
+  if(!n){showEmptyPane();return;}
+  showEditorPane();
+  document.getElementById('note-title-input').value=n.title||'';
+  document.getElementById('note-body').value=n.body||'';
+  renderTagsEditor();
+  updateWordCount();
+  setStatus(n.driveFileId?'Synced to Drive ✓':'Local only');
+  renderList();
+  closeSidebar();
+}
+function showEmptyPane(){
+  document.getElementById('empty-pane').style.display='flex';
+  document.getElementById('editor-inner').style.display='none';
+}
+function showEditorPane(){
+  document.getElementById('empty-pane').style.display='none';
+  const ei=document.getElementById('editor-inner');
+  ei.style.display='flex';
+  ei.style.flexDirection='column';
+  ei.style.height='100%';
+}
+function updateWordCount(){
+  const b=document.getElementById('note-body').value;
+  const words=b.trim()?b.trim().split(/\s+/).length:0;
+  document.getElementById('word-count').textContent=words+' words';
+  document.getElementById('char-count').textContent=b.length+' chars';
+}
+function setStatus(msg,cls){
+  document.getElementById('status-msg').textContent=msg;
+  const btn=document.getElementById('save-btn');
+  btn.className='tbtn'+(cls?' '+cls:'');
+}
+
+// ═══════════════════════════════════════
+// Formatting helpers
+// ═══════════════════════════════════════
+function fmt(before,after){
+  const ta=document.getElementById('note-body');
+  const s=ta.selectionStart, e=ta.selectionEnd;
+  const sel=ta.value.slice(s,e);
+  const rep=before+sel+after;
+  ta.setRangeText(rep,s,e,'end');
+  onBodyChange();
+}
+function fmtLine(prefix){
+  const ta=document.getElementById('note-body');
+  const s=ta.selectionStart;
+  const lineStart=ta.value.lastIndexOf('\n',s-1)+1;
+  ta.setRangeText(prefix,lineStart,lineStart,'end');
+  onBodyChange();
+}
+function fmtBlock(){
+  const ta=document.getElementById('note-body');
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.slice(s,e);
+  ta.setRangeText('```\n'+sel+'\n```',s,e,'end');
+  onBodyChange();
+}
+
+// ═══════════════════════════════════════
+// Settings
+// ═══════════════════════════════════════
+async function loadSettings(){
+  const all=await dbGetAll('settings');
+  const saved=all.find(s=>s.key==='main');
+  if(saved)settings={...settings,...saved};
+  applyTheme(settings.theme||'dark');
+}
+async function saveSettings(){
+  await dbPut('settings',{key:'main',...settings});
+}
+function setTheme(t){
+  settings.theme=t;
+  applyTheme(t);
+  saveSettings();
+}
+function applyTheme(t){
+  document.body.classList.toggle('light-theme',t==='light');
+  document.getElementById('theme-dark').classList.toggle('active',t==='dark');
+  document.getElementById('theme-light').classList.toggle('active',t==='light');
+}
+function setSort(s){
+  settings.sort=s;
+  ['date','title','created'].forEach(x=>{
+    document.getElementById('sort-'+x).classList.toggle('active',x===s);
+  });
+  const labels={date:'↓ Date',title:'↓ Title',created:'↓ Created'};
+  document.getElementById('sort-btn').textContent=labels[s]||'↓ Date';
+  saveSettings();
+  renderList();
+}
+function cycleSort(){
+  const order=['date','title','created'];
+  const cur=settings.sort||'date';
+  const next=order[(order.indexOf(cur)+1)%order.length];
+  setSort(next);
+}
+function openSettings(){
+  updateDataStats();
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
+
+// ═══════════════════════════════════════
+// Data stats
+// ═══════════════════════════════════════
+function updateDataStats(){
+  const allTags=new Set();
+  notes.forEach(n=>(n.tags||[]).forEach(t=>allTags.add(t)));
+  const synced=notes.filter(n=>n.driveFileId).length;
+  document.getElementById('data-stats').textContent=
+    `Notes: ${notes.length}  ·  Tags: ${allTags.size}  ·  Synced: ${synced}`;
+}
+
+// ═══════════════════════════════════════
+// Import / Export / Nuke
+// ═══════════════════════════════════════
+function exportJSON(){
+  const data=JSON.stringify({version:1,exportedAt:new Date().toISOString(),notes,settings},null,2);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+  a.download=`notesync_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Exported ✓');
+}
+function importJSON(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data.notes))throw new Error('Invalid file');
+      if(!confirm(`Import ${data.notes.length} notes? This replaces all existing notes.`))return;
+      loading(true);
+      await dbClear('notes');
+      for(const n of data.notes)await dbPut('notes',n);
+      notes=data.notes.sort((a,b)=>b.updatedAt-a.updatedAt);
+      activeId=null;showEmptyPane();
+      renderList();renderTagsBar();updateDataStats();
+      loading(false);toast(`Imported ${notes.length} notes ✓`);
+    }catch(err){loading(false);toast('Import failed: '+err.message,'err');}
+    input.value='';
+  };
+  r.readAsText(file);
+}
+function nukeAll(){
+  confirm2('Delete ALL notes permanently? This cannot be undone.',async()=>{
+    await dbClear('notes');notes=[];activeId=null;
+    renderList();renderTagsBar();showEmptyPane();updateDataStats();
+    toast('All notes deleted');
+  });
+}
+
+// ═══════════════════════════════════════
+// Confirm dialog
+// ═══════════════════════════════════════
+function confirm2(msg,onOk){
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-modal').classList.add('open');
+  document.getElementById('confirm-ok').onclick=()=>{closeConfirm();onOk();};
+}
+function closeConfirm(){document.getElementById('confirm-modal').classList.remove('open');}
+
+// ═══════════════════════════════════════
+// Google OAuth (same pattern as ShiftLog)
+// ═══════════════════════════════════════
+const GOOGLE_CLIENT_ID='1071295354470-3ds0mp2hv3n4n7kng02hbriph0oeglo9.apps.googleusercontent.com';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+const DRIVE_BACKUP_FILENAME='notesync_backup.json';
+
+function initGoogleAuth(){
+  if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,500);return;}
+  gTokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID,
+    scope:DRIVE_SCOPE+' https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback:(resp)=>{
+      if(resp.error){gStatus('Auth error: '+resp.error,true);return;}
+      gToken=resp.access_token;
+      fetchGUserInfo();
+    }
+  });
+  const saved=sessionStorage.getItem('gToken');
+  if(saved){gToken=saved;fetchGUserInfo();}
+}
+async function fetchGUserInfo(){
+  if(!gToken)return;
+  try{
+    const r=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+gToken}});
+    if(!r.ok){gToken=null;sessionStorage.removeItem('gToken');updateGUI();return;}
+    gUser=await r.json();
+    sessionStorage.setItem('gToken',gToken);
+    updateGUI();
+  }catch{gToken=null;updateGUI();}
+}
+function updateGUI(){
+  const isIn=!!gUser;
+  document.getElementById('g-signed-out').style.display=isIn?'none':'block';
+  document.getElementById('g-signed-in').style.display=isIn?'block':'none';
+  const btn=document.getElementById('g-profile-btn');
+  const inner=document.getElementById('g-avatar-inner');
+  const label=document.getElementById('g-label');
+  if(isIn){
+    inner.innerHTML=`<img src="${gUser.picture||''}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)">`;
+    label.textContent=(gUser.given_name||gUser.name||'').split(' ')[0];
+    document.getElementById('g-name').textContent=gUser.name||'';
+    document.getElementById('g-email').textContent=gUser.email||'';
+    const ph=document.getElementById('g-photo');if(ph)ph.src=gUser.picture||'';
+  }else{
+    inner.innerHTML='G';
+    label.textContent='Sign in';
+  }
+  updateDataStats();
+}
+function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent'});}
+function signOutGoogle(){
+  if(gToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(gToken,()=>{});
+  gToken=null;gUser=null;sessionStorage.removeItem('gToken');
+  updateGUI();closeGDropdown();toast('Signed out');
+}
+function handleGProfileClick(){
+  const dd=document.getElementById('g-dropdown'),bd=document.getElementById('g-backdrop');
+  if(dd.style.display==='none'||!dd.style.display){dd.style.display='block';bd.style.display='block';}
+  else closeGDropdown();
+}
+function closeGDropdown(){
+  document.getElementById('g-dropdown').style.display='none';
+  document.getElementById('g-backdrop').style.display='none';
+}
+function gStatus(msg,err=false){
+  const el=document.getElementById('g-status');
+  if(el){el.textContent=msg;el.style.color=err?'var(--red)':'var(--muted)';}
+}
+async function driveReq(method,url,body,ct){
+  if(!gToken)throw new Error('Not signed in');
+  const opts={method,headers:{Authorization:'Bearer '+gToken}};
+  if(body){opts.body=body;opts.headers['Content-Type']=ct||'application/json';}
+  const r=await fetch(url,opts);
+  if(r.status===401){gToken=null;gUser=null;sessionStorage.removeItem('gToken');updateGUI();throw new Error('Session expired — please sign in again');}
+  return r;
+}
+async function findDriveFile(name){
+  const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files?q=name='${name}'+and+trashed=false&fields=files(id,name,modifiedTime)&spaces=drive`);
+  const d=await r.json();return d.files?.[0]||null;
+}
+async function uploadToDrive(name,content,existingId){
+  if(existingId){
+    await driveReq('PATCH',`https://www.googleapis.com/upload/drive/v3/files/${existingId}?uploadType=media`,content,'application/json');
+    return existingId;
+  }else{
+    const meta=JSON.stringify({name,mimeType:'application/json'});
+    const boundary='notes_sync_bnd';
+    const body=`--${boundary}\r\nContent-Type: application/json\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+    const r=await driveReq('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',body,`multipart/related; boundary=${boundary}`);
+    const d=await r.json();return d.id;
+  }
+}
+
+// Backup ALL notes to a single JSON file on Drive
+async function backupAllToDrive(){
+  if(!gToken){signInWithGoogle();return;}
+  gStatus('Uploading…');loading(true);
+  try{
+    const content=JSON.stringify({version:1,exportedAt:new Date().toISOString(),notes,settings},null,2);
+    const existing=await findDriveFile(DRIVE_BACKUP_FILENAME);
+    await uploadToDrive(DRIVE_BACKUP_FILENAME,content,existing?.id);
+    gStatus(`✓ Backed up ${notes.length} notes — ${new Date().toLocaleTimeString()}`);
+    toast('Backed up to Drive ✓');closeGDropdown();
+  }catch(e){gStatus('✗ '+e.message,true);toast('Backup failed: '+e.message,'err');}
+  loading(false);
+}
+
+// Restore from Drive
+async function restoreFromDrive(){
+  if(!gToken){signInWithGoogle();return;}
+  if(!confirm('Restore from Drive? This will replace all local notes.'))return;
+  gStatus('Searching Drive…');loading(true);
+  try{
+    const file=await findDriveFile(DRIVE_BACKUP_FILENAME);
+    if(!file)throw new Error(`"${DRIVE_BACKUP_FILENAME}" not found. Back up first.`);
+    const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`);
+    const data=await r.json();
+    if(!Array.isArray(data.notes))throw new Error('Invalid backup file');
+    await dbClear('notes');
+    for(const n of data.notes)await dbPut('notes',n);
+    notes=data.notes.sort((a,b)=>b.updatedAt-a.updatedAt);
+    activeId=null;showEmptyPane();
+    renderList();renderTagsBar();updateDataStats();
+    gStatus(`✓ Restored ${notes.length} notes`);
+    toast('Restored from Drive ✓');closeGDropdown();
+  }catch(e){gStatus('✗ '+e.message,true);toast('Restore failed: '+e.message,'err');}
+  loading(false);
+}
+
+// Save single current note to Drive as its own file
+async function saveNoteToDrive(){
+  const n=activeNote();if(!n)return;
+  if(!gToken){
+    // save locally and hint
+    await saveCurrentNoteLocally();
+    toast('Sign in to save to Drive','err');return;
+  }
+  const btn=document.getElementById('save-btn');
+  btn.className='tbtn saving';setStatus('Saving to Drive…');
+  try{
+    const fname=`note_${n.id}.json`;
+    const content=JSON.stringify(n,null,2);
+    const existing=n.driveFileId?{id:n.driveFileId}:await findDriveFile(fname);
+    const fileId=await uploadToDrive(fname,content,existing?.id);
+    n.driveFileId=fileId;
+    await dbPut('notes',n);
+    renderList();
+    setStatus('Saved to Drive ✓','ok');
+    setTimeout(()=>setStatus('Synced to Drive ✓'),2500);
+    btn.className='tbtn';
+  }catch(e){
+    setStatus('Save failed','err');toast('Save failed: '+e.message,'err');
+    btn.className='tbtn';
+  }
+}
+
+// ═══════════════════════════════════════
+// Mobile sidebar
+// ═══════════════════════════════════════
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-backdrop').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('show');
+}
+
+// ═══════════════════════════════════════
+// Startup
+// ═══════════════════════════════════════
+(async function startup(){
+  try{
+    db=await openDB();
+    await loadSettings();
+    await loadNotes();
+
+    document.getElementById('main-app').style.display='flex';
+    const splash=document.getElementById('splash');
+    splash.classList.add('hide');
+    setTimeout(()=>splash.style.display='none',450);
+
+    renderList();
+    renderTagsBar();
+    updateDataStats();
+    initGoogleAuth();
+
+    // Keyboard shortcut: Cmd/Ctrl+N = new note
+    document.addEventListener('keydown',e=>{
+      if((e.metaKey||e.ctrlKey)&&e.key==='n'){e.preventDefault();newNote();}
+      if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveNoteToDrive();}
+    });
+
+    // Settings sort buttons highlight
+    ['date','title','created'].forEach(x=>{
+      document.getElementById('sort-'+x).classList.toggle('active',x===(settings.sort||'date'));
+    });
+    const labels={date:'↓ Date',title:'↓ Title',created:'↓ Created'};
+    document.getElementById('sort-btn').textContent=labels[settings.sort||'date'];
+
+  }catch(e){
+    document.getElementById('splash-msg').textContent='Error: '+e.message;
+    console.error(e);
+  }
+})();
+
+// Click outside settings modal
+document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
+document.getElementById('confirm-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm();});
+</script>
+</body>
+</html>
