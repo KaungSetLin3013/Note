@@ -759,14 +759,14 @@ function closeConfirm(){document.getElementById('confirm-modal').classList.remov
 // ═══════════════════════════════════════
 // Client ID loaded from config/config.js
 const GOOGLE_CLIENT_ID=window.NOTESYNC_CLIENT_ID||'';
-const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 const DRIVE_BACKUP_FILENAME='notesync_backup.json';
 
 function initGoogleAuth(){
   if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,500);return;}
   gTokenClient=google.accounts.oauth2.initTokenClient({
     client_id:GOOGLE_CLIENT_ID,
-    scope:DRIVE_SCOPE+' https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    scope:DRIVE_SCOPE,
     callback:(resp)=>{
       if(resp.error){gStatus('Auth error: '+resp.error,true);return;}
       gToken=resp.access_token;
@@ -805,7 +805,7 @@ function updateGUI(){
   }
   updateDataStats();
 }
-function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent'});}
+function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent',login_hint:'kaungsetlin3013@gmail.com',scope:DRIVE_SCOPE});}
 function signOutGoogle(){
   if(gToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(gToken,()=>{});
   gToken=null;gUser=null;sessionStorage.removeItem('gToken');
