@@ -803,7 +803,7 @@ function updateGUI(){
   }
   updateDataStats();
 }
-function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent'});}
+function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent', login_hint:'kaungsetlin3013@gmail.com'});}
 function signOutGoogle(){
   if(gToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(gToken,()=>{});
   gToken=null;gUser=null;sessionStorage.removeItem('gToken');
