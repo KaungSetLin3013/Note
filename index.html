@@ -14,10 +14,7 @@
   --accent:#c0392b;--accent2:#e74c3c;
   --line:#ddd4bc;--line2:#c8be9e;
   --green:#27ae60;--red:#c0392b;--blue:#2980b9;
-  --shadow:rgba(44,36,22,.12);
-  --margin-color:#f5b8b8;
-  --margin-line:#e8a0a0;
-  --hole:#e0d5c0;
+  --shadow:rgba(44,36,22,.12);--margin-line:#e8a0a0;
   color-scheme:light;
 }
 body.dark-nb{
@@ -25,148 +22,98 @@ body.dark-nb{
   --ink:#f0e8d5;--ink2:#c8b898;--ink3:#8c7d65;
   --line:#3a3228;--line2:#4a4035;
   --accent:#e05a4a;--accent2:#ff6b5a;
-  --margin-color:#4a2020;--margin-line:#5a2a2a;
-  --hole:#3a3228;--shadow:rgba(0,0,0,.4);
+  --margin-line:#5a2a2a;--shadow:rgba(0,0,0,.4);
   color-scheme:dark;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:100vh;overflow:hidden;}
 
-/* Loading */
 .loading-bar{height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);background-size:200% 100%;position:fixed;top:0;left:0;right:0;z-index:999;display:none;animation:loadAnim 1.2s infinite;}
 @keyframes loadAnim{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .loading-bar.show{display:block;}
 
-/* Toast */
 #toast{position:fixed;bottom:24px;right:24px;z-index:600;background:var(--paper);border:1.5px solid var(--line2);border-radius:6px;padding:10px 16px;font-size:13px;font-family:'JetBrains Mono',monospace;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px;box-shadow:2px 3px 12px var(--shadow);}
 #toast.show{opacity:1;}
 #toast.ok{border-color:var(--green);color:var(--green);}
 #toast.err{border-color:var(--red);color:var(--red);}
 
-/* Splash */
 #splash{position:fixed;inset:0;background:var(--paper);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s;}
 #splash.hide{opacity:0;pointer-events:none;}
-.splash-logo{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--ink);letter-spacing:-1px;}
+.splash-logo{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--ink);}
 .splash-logo span{color:var(--accent);}
 .splash-sub{color:var(--ink3);font-size:13px;font-family:'JetBrains Mono',monospace;}
 
-/* App layout */
 .app-wrap{display:flex;height:100vh;}
 
-/* ── SIDEBAR ── */
-#sidebar{
-  width:260px;min-width:260px;
-  background:var(--paper2);
-  border-right:2px solid var(--line2);
-  display:flex;flex-direction:column;
-  position:relative;
-  /* torn paper right edge */
-  box-shadow:3px 0 8px var(--shadow);
-}
-/* Three ring holes */
-#sidebar::before{
-  content:'';position:absolute;right:-1px;top:0;bottom:0;width:28px;
-  background:repeating-linear-gradient(
-    to bottom,
-    transparent 0px,transparent 68px,
-    var(--paper3) 68px,var(--paper3) 102px
-  );
-  z-index:2;pointer-events:none;
-}
+/* Sidebar */
+#sidebar{width:260px;min-width:260px;background:var(--paper2);border-right:2px solid var(--line2);display:flex;flex-direction:column;position:relative;box-shadow:3px 0 8px var(--shadow);}
+#sidebar::before{content:'';position:absolute;right:-1px;top:0;bottom:0;width:28px;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 68px,var(--paper3) 68px,var(--paper3) 102px);z-index:2;pointer-events:none;}
 .ring-holes{position:absolute;right:6px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-around;padding:60px 0;z-index:3;pointer-events:none;}
 .ring{width:16px;height:16px;border-radius:50%;background:var(--paper3);border:2px solid var(--line2);box-shadow:inset 0 1px 3px var(--shadow);}
 
-.sidebar-header{padding:16px 14px 12px;border-bottom:1.5px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
-.logo span{color:var(--accent);}
-.sidebar-header-right{display:flex;gap:6px;align-items:center;}
-.icon-btn{background:none;border:1.5px solid var(--line);border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);font-size:14px;transition:all .2s;}
+.sidebar-header{padding:14px 14px 10px;border-bottom:1.5px solid var(--line);display:flex;align-items:center;position:relative;z-index:5;background:var(--paper2);}
+.sidebar-header-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%;justify-content:space-between;}
+.icon-btn{background:none;border:1.5px solid var(--line);border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);font-size:14px;transition:all .2s;flex-shrink:0;}
 .icon-btn:hover{border-color:var(--accent);color:var(--accent);}
-#new-note-btn{background:var(--accent);border:none;border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px;font-weight:700;transition:all .2s;}
+#new-note-btn{background:var(--accent);border:none;border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px;font-weight:700;transition:all .2s;flex-shrink:0;}
 #new-note-btn:hover{background:var(--accent2);transform:scale(1.08);}
 
-.search-wrap{padding:10px 12px;border-bottom:1px solid var(--line);}
+/* Tabs */
+.tab-bar{display:flex;border-bottom:1.5px solid var(--line);background:var(--paper2);position:relative;z-index:5;}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none;}
+.tab:hover{color:var(--ink);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;}
+
+.search-wrap{padding:8px 12px;border-bottom:1px solid var(--line);}
 .search-input{width:100%;background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:7px 10px 7px 30px;color:var(--ink);font-family:'Lora',serif;font-size:13px;outline:none;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238c7d65' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center;}
 .search-input:focus{border-color:var(--accent);}
 .search-input::placeholder{color:var(--ink3);}
 
-.tags-bar{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;gap:5px;flex-wrap:wrap;min-height:34px;}
+.tags-bar{padding:6px 12px;border-bottom:1px solid var(--line);display:flex;gap:5px;flex-wrap:wrap;min-height:32px;}
 .tag-chip{padding:2px 9px;border-radius:20px;border:1px solid var(--line2);background:var(--paper);color:var(--ink3);font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s;}
 .tag-chip:hover,.tag-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(192,57,43,.06);}
 
-/* Notes list — lined paper */
-#notes-list{
-  flex:1;overflow-y:auto;
-  /* Lined paper lines */
-  background-image:repeating-linear-gradient(
-    to bottom,
-    transparent 0px,transparent 47px,
-    var(--line) 47px,var(--line) 48px
-  );
-  background-size:100% 48px;
-  padding:4px 8px;
-}
+#notes-list{flex:1;overflow-y:auto;background-image:repeating-linear-gradient(to bottom,transparent 0px,transparent 47px,var(--line) 47px,var(--line) 48px);background-size:100% 48px;padding:4px 8px;}
 #notes-list::-webkit-scrollbar{width:4px;}
 #notes-list::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
-
-.note-item{
-  padding:8px 10px;border-radius:4px;cursor:pointer;
-  margin-bottom:2px;border:1px solid transparent;
-  transition:all .15s;background:transparent;
-}
+.note-item{padding:8px 10px;border-radius:4px;cursor:pointer;margin-bottom:2px;border:1px solid transparent;transition:all .15s;}
 .note-item:hover{background:rgba(192,57,43,.04);border-color:var(--line);}
 .note-item.active{background:rgba(192,57,43,.08);border-color:var(--accent);border-left:3px solid var(--accent);}
-.ni-title{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Lora',serif;}
+.ni-title{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ni-preview{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-style:italic;}
 .ni-footer{display:flex;align-items:center;gap:5px;margin-top:2px;}
 .ni-date{font-size:10px;color:var(--ink3);font-family:'JetBrains Mono',monospace;}
 .ni-tags{display:flex;gap:3px;}
 .ni-tag{font-size:9px;padding:1px 5px;border-radius:10px;border:1px solid var(--line);color:var(--ink3);font-family:'JetBrains Mono',monospace;}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;}
-.empty-list{text-align:center;padding:40px 16px;color:var(--ink3);font-size:13px;font-style:italic;}
-.empty-list .icon{font-size:28px;margin-bottom:8px;}
+.empty-list{text-align:center;padding:36px 14px;color:var(--ink3);font-size:13px;font-style:italic;}
 
-.sidebar-footer{padding:9px 12px;border-top:1.5px solid var(--line);display:flex;align-items:center;gap:7px;}
-#g-profile-btn{display:flex;align-items:center;gap:7px;background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer;transition:border-color .2s;flex:1;min-width:0;}
+/* Password list */
+#passwords-list{flex:1;overflow-y:auto;padding:6px 8px;}
+#passwords-list::-webkit-scrollbar{width:4px;}
+#passwords-list::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px;}
+.pw-item{padding:9px 11px;border-radius:6px;cursor:pointer;margin-bottom:4px;border:1px solid var(--line);background:var(--paper);transition:all .15s;display:flex;align-items:center;gap:8px;}
+.pw-item:hover{border-color:var(--accent);}
+.pw-item.active{border-color:var(--accent);background:rgba(192,57,43,.05);}
+.pw-icon{width:28px;height:28px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0;}
+.pw-info{flex:1;min-width:0;}
+.pw-site{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pw-user{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace;}
+
+#g-profile-btn{padding:0;overflow:hidden;}
 #g-profile-btn:hover{border-color:var(--accent);}
 .g-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0;}
-#g-label{font-size:11px;font-weight:600;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace;}
-.sort-btn{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--ink3);cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace;transition:all .2s;}
+.sort-btn{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:0 8px;height:32px;font-size:10px;color:var(--ink3);cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace;transition:all .2s;}
 .sort-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-/* ── EDITOR PANE ── */
-#editor-pane{
-  flex:1;display:flex;flex-direction:column;overflow:hidden;
-  /* Main notebook paper with margin line */
-  background-color:var(--paper);
-  background-image:
-    /* red margin line */
-    linear-gradient(to right, transparent 59px, var(--margin-line) 59px, var(--margin-line) 61px, transparent 61px),
-    /* blue ruled lines */
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0px,transparent 31px,
-      var(--line) 31px,var(--line) 32px
-    );
-  background-size:100% 100%, 100% 32px;
-  background-attachment:local;
-}
+/* Editor pane */
+#editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background-color:var(--paper);background-image:linear-gradient(to right,transparent 59px,var(--margin-line) 59px,var(--margin-line) 61px,transparent 61px),repeating-linear-gradient(to bottom,transparent 0px,transparent 31px,var(--line) 31px,var(--line) 32px);background-size:100% 100%,100% 32px;background-attachment:local;}
 
-/* Toolbar */
-#editor-toolbar{
-  padding:12px 20px 10px 72px;
-  border-bottom:1.5px solid var(--line);
-  display:flex;align-items:center;gap:10px;
-  background:var(--paper);
-  background-image:linear-gradient(to right, transparent 59px, var(--margin-line) 59px, var(--margin-line) 61px, transparent 61px);
-  flex-shrink:0;
-}
-#note-title-input{
-  flex:1;border:none;background:none;
-  font-size:22px;font-weight:600;color:var(--ink);
-  font-family:'Caveat',cursive;outline:none;
-  padding-bottom:2px;
-}
+/* Password pane */
+#password-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--paper);}
+
+#editor-toolbar{padding:12px 20px 10px 72px;border-bottom:1.5px solid var(--line);display:flex;align-items:center;gap:10px;background:var(--paper);background-image:linear-gradient(to right,transparent 59px,var(--margin-line) 59px,var(--margin-line) 61px,transparent 61px);flex-shrink:0;}
+#note-title-input{flex:1;border:none;background:none;font-size:22px;font-weight:600;color:var(--ink);font-family:'Caveat',cursive;outline:none;}
 #note-title-input::placeholder{color:var(--ink3);}
 .toolbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .tbtn{background:none;border:1.5px solid var(--line2);border-radius:6px;padding:5px 11px;font-size:12px;color:var(--ink3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s;white-space:nowrap;}
@@ -176,69 +123,75 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 .tbtn.danger{color:var(--red);border-color:var(--red);}
 .tbtn.danger:hover{background:var(--red);color:#fff;border-color:var(--red);}
 
-/* Tags */
-#tags-editor{
-  padding:6px 20px 6px 72px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-height:34px;
-  background:var(--paper);
-  background-image:linear-gradient(to right, transparent 59px, var(--margin-line) 59px, var(--margin-line) 61px, transparent 61px);
-  flex-shrink:0;
-}
+#tags-editor{padding:6px 20px 6px 72px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-height:34px;background:var(--paper);background-image:linear-gradient(to right,transparent 59px,var(--margin-line) 59px,var(--margin-line) 61px,transparent 61px);flex-shrink:0;}
 .tag-pill{display:flex;align-items:center;gap:4px;background:rgba(192,57,43,.08);border:1px solid var(--accent);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;}
 .tag-pill button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:10px;padding:0;opacity:.6;}
 .tag-pill button:hover{opacity:1;color:var(--red);}
-#tag-add-input{background:none;border:none;outline:none;color:var(--ink);font-family:'Lora',serif;font-size:12px;font-style:italic;min-width:80px;color:var(--ink3);}
+#tag-add-input{background:none;border:none;outline:none;color:var(--ink3);font-family:'Lora',serif;font-size:12px;font-style:italic;min-width:80px;}
 #tag-add-input::placeholder{color:var(--line2);}
 
-/* Fmt bar */
-#fmt-bar{
-  padding:5px 20px 5px 72px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:3px;
-  background:var(--paper);
-  background-image:linear-gradient(to right, transparent 59px, var(--margin-line) 59px, var(--margin-line) 61px, transparent 61px);
-  flex-shrink:0;
-}
-.fmt-btn{background:none;border:1px solid transparent;border-radius:4px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);font-size:12px;transition:all .15s;font-family:'Lora',serif;}
+/* Fmt bar - only Bold, Italic, List, Checkbox, Quote */
+#fmt-bar{padding:5px 20px 5px 72px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:3px;background:var(--paper);background-image:linear-gradient(to right,transparent 59px,var(--margin-line) 59px,var(--margin-line) 61px,transparent 61px);flex-shrink:0;}
+.fmt-btn{background:none;border:1px solid transparent;border-radius:4px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);font-size:13px;transition:all .15s;font-family:'Lora',serif;}
 .fmt-btn:hover{border-color:var(--line);color:var(--ink);}
-.fmt-divider{width:1px;height:16px;background:var(--line);margin:0 3px;}
+.fmt-divider{width:1px;height:16px;background:var(--line);margin:0 4px;}
 
-/* Note textarea — the actual writing area */
-#note-body{
-  flex:1;
-  padding:8px 24px 24px 72px;
-  resize:none;border:none;background:transparent;
-  font-size:16px;color:var(--ink);
-  font-family:'Lora',serif;
-  line-height:32px; /* matches ruled lines */
-  outline:none;overflow-y:auto;
-}
-#note-body::placeholder{color:var(--ink3);font-style:italic;}
+/* Live note body — single always-editable view with real checkboxes */
+#note-editor-wrap{flex:1;overflow-y:auto;position:relative;}
+#note-lines{padding:8px 24px 24px 72px;font-size:16px;color:var(--ink);font-family:'Lora',serif;min-height:100%;}
+#note-lines .cb-line{display:flex;align-items:flex-start;gap:8px;min-height:32px;}
+#note-lines .cb-line input[type=checkbox]{width:17px;height:17px;margin-top:7px;flex-shrink:0;accent-color:var(--accent);cursor:pointer;}
+#note-lines .cb-line.done .line-text{text-decoration:line-through;color:var(--ink3);}
+#note-lines .cb-line .line-text{flex:1;line-height:32px;outline:none;cursor:text;}
+#note-lines .plain-line{min-height:32px;line-height:32px;outline:none;}
 
-/* Status bar */
-#status-bar{
-  padding:7px 20px 7px 72px;border-top:1.5px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--paper2);flex-shrink:0;
-}
+#status-bar{padding:7px 20px 7px 72px;border-top:1.5px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--paper2);flex-shrink:0;}
 #status-msg{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;}
 .status-right{display:flex;gap:12px;}
 #word-count,#char-count{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;}
 
-/* Empty pane */
-#empty-pane{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;color:var(--ink3);
-}
+#empty-pane{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--ink3);}
 .empty-pane-icon{font-size:56px;opacity:.25;font-family:'Caveat',cursive;}
 .empty-pane-text{font-family:'Caveat',cursive;font-size:22px;color:var(--ink3);}
 .empty-pane-sub{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--ink3);}
-#create-first-btn{margin-top:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:10px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive;letter-spacing:.5px;transition:all .2s;}
+#create-first-btn{margin-top:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:10px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive;transition:all .2s;}
 #create-first-btn:hover{background:var(--accent2);transform:translateY(-2px);}
 
-/* Google dropdown */
-#g-dropdown{display:none;position:fixed;bottom:56px;left:12px;z-index:300;background:var(--paper);border:1.5px solid var(--line2);border-radius:12px;padding:18px;width:270px;box-shadow:3px 4px 20px var(--shadow);}
+/* Password pane */
+.pw-header{padding:14px 18px;border-bottom:1.5px solid var(--line);display:flex;align-items:center;gap:10px;}
+.pw-header h2{font-family:'Caveat',cursive;font-size:22px;font-weight:700;flex:1;}
+.pw-form{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;}
+.pw-form.hidden{display:none;}
+.pw-field{display:flex;flex-direction:column;gap:4px;}
+.pw-field label{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;}
+.pw-field input{padding:8px 11px;border:1.5px solid var(--line);border-radius:6px;background:var(--paper2);color:var(--ink);font-family:'Lora',serif;font-size:14px;outline:none;transition:border-color .2s;width:100%;}
+.pw-field input:focus{border-color:var(--accent);}
+.pw-field-row{display:flex;gap:8px;}
+.pw-field-row .pw-field{flex:1;}
+.pw-actions{display:flex;gap:8px;justify-content:flex-end;}
 
-/* Settings modal */
+/* Password detail */
+#pw-detail{flex:1;padding:20px 24px;overflow-y:auto;display:none;}
+#pw-detail.show{display:block;}
+.pw-detail-site{font-family:'Caveat',cursive;font-size:28px;font-weight:700;margin-bottom:4px;}
+.pw-detail-url{font-size:12px;color:var(--blue);font-family:'JetBrains Mono',monospace;margin-bottom:18px;}
+.pw-detail-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);}
+.pw-detail-label{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;}
+.pw-detail-value{font-size:14px;font-family:'JetBrains Mono',monospace;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.copy-btn{background:none;border:1px solid var(--line);border-radius:5px;padding:3px 9px;font-size:11px;color:var(--ink3);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pw-mask{letter-spacing:3px;}
+.show-pw-btn{background:none;border:1px solid var(--line);border-radius:5px;padding:3px 9px;font-size:11px;color:var(--ink3);cursor:pointer;font-family:'JetBrains Mono',monospace;}
+.show-pw-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pw-notes-text{font-size:14px;color:var(--ink);line-height:1.7;font-style:italic;margin-top:4px;}
+#pw-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink3);padding:30px;}
+.pw-empty-icon{font-size:44px;opacity:.25;}
+.pw-empty-text{font-family:'Caveat',cursive;font-size:20px;}
+
+/* Google dropdown */
+#g-dropdown{display:none;position:fixed;top:58px;left:12px;z-index:300;background:var(--paper);border:1.5px solid var(--line2);border-radius:12px;padding:18px;width:270px;box-shadow:3px 4px 20px var(--shadow);}
+
+/* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,36,22,.5);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--paper);border:1.5px solid var(--line2);border-radius:12px;padding:26px;width:100%;max-width:460px;position:relative;animation:slideUp .2s ease;max-height:90vh;overflow-y:auto;box-shadow:4px 5px 24px var(--shadow);}
@@ -254,7 +207,6 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 .lang-btn{padding:4px 11px;border:none;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink3);}
 .lang-btn.active{background:var(--accent);color:#fff;}
 
-/* Confirm */
 #confirm-modal{display:none;position:fixed;inset:0;background:rgba(44,36,22,.5);backdrop-filter:blur(4px);z-index:400;align-items:center;justify-content:center;padding:20px;}
 #confirm-modal.open{display:flex;}
 .confirm-box{background:var(--paper);border:1.5px solid var(--line2);border-radius:12px;padding:22px;max-width:340px;width:100%;animation:slideUp .2s ease;box-shadow:3px 4px 16px var(--shadow);}
@@ -267,12 +219,12 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
   #sidebar.open{transform:translateX(0);}
   #sidebar-backdrop{display:none;position:fixed;inset:0;z-index:99;background:rgba(44,36,22,.4);}
   #sidebar-backdrop.show{display:block;}
-  .mobile-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--line);background:var(--paper2);}
-  .mobile-menu-btn{background:none;border:1.5px solid var(--line);border-radius:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--ink3);}
-  #editor-toolbar{padding-left:16px;}
-  #note-title-input{font-size:18px;}
-  #note-body{padding-left:16px;line-height:32px;}
-  #tags-editor,#fmt-bar,#status-bar{padding-left:16px;}
+  .mobile-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--line);background:var(--paper2);flex-shrink:0;}
+  .mobile-menu-btn{background:none;border:1.5px solid var(--line);border-radius:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--ink3);}
+  .app-wrap{flex-direction:column;}
+  #editor-toolbar,#tags-editor,#fmt-bar,#status-bar{padding-left:16px;}
+  #note-lines{padding-left:16px;}
+  #editor-pane,#password-pane{flex:1;min-height:0;}
 }
 @media(min-width:641px){.mobile-header{display:none;}#sidebar-backdrop{display:none!important;}}
 </style>
@@ -288,47 +240,47 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 
 <div class="mobile-header">
   <button class="mobile-menu-btn" onclick="openSidebar()">☰</button>
-  <div class="logo" style="font-size:20px">Note<span>Sync</span></div>
-  <button class="mobile-menu-btn" onclick="newNote()">+</button>
+  <button class="mobile-menu-btn" id="mobile-add-btn" onclick="handleMobileAdd()">+</button>
 </div>
 <div id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <div class="app-wrap" id="main-app" style="display:none">
   <!-- Sidebar -->
   <div id="sidebar">
-    <!-- Ring holes decoration -->
-    <div class="ring-holes">
-      <div class="ring"></div>
-      <div class="ring"></div>
-      <div class="ring"></div>
-    </div>
-
+    <div class="ring-holes"><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
     <div class="sidebar-header">
-      <div class="logo">Note<span>Sync</span></div>
       <div class="sidebar-header-right">
-        <div class="icon-btn" onclick="openSettings()" title="Settings">⚙</div>
-        <button id="new-note-btn" onclick="newNote()" title="New note (Ctrl+N)">+</button>
+        <div class="icon-btn" id="g-profile-btn" onclick="handleGProfileClick()" title="Google Drive Sync">
+          <div class="g-avatar" id="g-avatar-inner">G</div>
+        </div>
+        <button class="sort-btn" onclick="cycleSort()" id="sort-btn">↓ Date</button>
+        <div class="icon-btn" onclick="openSettings()">⚙</div>
+        <button id="new-note-btn" onclick="handleAddBtn()">+</button>
       </div>
     </div>
 
-    <div class="search-wrap">
-      <input class="search-input" type="text" id="search-input" placeholder="Search notes…" oninput="renderList()">
+    <div class="tab-bar">
+      <div class="tab active" id="tab-notes" onclick="switchTab('notes')">📝 Notes</div>
+      <div class="tab" id="tab-passwords" onclick="switchTab('passwords')">🔑 Passwords</div>
     </div>
 
-    <div class="tags-bar" id="tags-bar"></div>
-
-    <div id="notes-list"></div>
-
-    <div class="sidebar-footer">
-      <div id="g-profile-btn" onclick="handleGProfileClick()">
-        <div class="g-avatar" id="g-avatar-inner">G</div>
-        <span id="g-label">Sign in</span>
+    <div id="notes-panel">
+      <div class="search-wrap">
+        <input class="search-input" type="text" id="search-input" placeholder="Search notes…" oninput="renderList()">
       </div>
-      <button class="sort-btn" onclick="cycleSort()" id="sort-btn">↓ Date</button>
+      <div class="tags-bar" id="tags-bar"></div>
+      <div id="notes-list"></div>
+    </div>
+
+    <div id="passwords-panel" style="display:none;flex:1;overflow-y:auto;">
+      <div class="search-wrap">
+        <input class="search-input" type="text" id="pw-search" placeholder="Search passwords…" oninput="renderPwList()">
+      </div>
+      <div id="passwords-list"></div>
     </div>
   </div>
 
-  <!-- Editor pane -->
+  <!-- Main area -->
   <div id="editor-pane">
     <div id="empty-pane">
       <div class="empty-pane-icon">✎</div>
@@ -336,7 +288,6 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
       <div class="empty-pane-sub">Pick one or start fresh</div>
       <button id="create-first-btn" onclick="newNote()">+ New Note</button>
     </div>
-
     <div id="editor-inner" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
       <div id="editor-toolbar">
         <input id="note-title-input" type="text" placeholder="Note title…" oninput="onTitleChange()">
@@ -345,33 +296,57 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
           <button class="tbtn danger" onclick="deleteCurrentNote()">Delete</button>
         </div>
       </div>
-
       <div id="tags-editor">
         <input id="tag-add-input" type="text" placeholder="+ tag…" onkeydown="handleTagInput(event)">
       </div>
-
       <div id="fmt-bar">
         <button class="fmt-btn" title="Bold" onclick="fmt('**','**')"><b>B</b></button>
         <button class="fmt-btn" title="Italic" onclick="fmt('_','_')"><i>I</i></button>
-        <button class="fmt-btn" title="Code" onclick="fmt('`','`')" style="font-family:monospace">{ }</button>
         <div class="fmt-divider"></div>
-        <button class="fmt-btn" title="H1" onclick="fmtLine('# ')"><b>H1</b></button>
-        <button class="fmt-btn" title="H2" onclick="fmtLine('## ')"><b>H2</b></button>
-        <button class="fmt-btn" title="List" onclick="fmtLine('- ')">☰</button>
-        <button class="fmt-btn" title="Checkbox" onclick="fmtLine('- [ ] ')">☐</button>
+        <button class="fmt-btn" title="Bullet list" onclick="fmtLine('- ')">☰</button>
+        <button class="fmt-btn" title="Checkbox" onclick="insertCheckbox()">☐</button>
         <button class="fmt-btn" title="Quote" onclick="fmtLine('> ')">❝</button>
-        <div class="fmt-divider"></div>
-        <button class="fmt-btn" title="Code block" onclick="fmtBlock()">⌨</button>
       </div>
-
-      <textarea id="note-body" placeholder="Start writing…" oninput="onBodyChange()"></textarea>
-
+      <div id="note-editor-wrap">
+        <div id="note-lines"></div>
+      </div>
       <div id="status-bar">
         <span id="status-msg"></span>
-        <div class="status-right">
-          <span id="word-count"></span>
-          <span id="char-count"></span>
+        <div class="status-right"><span id="word-count"></span><span id="char-count"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Password pane -->
+  <div id="password-pane" style="display:none;">
+    <div id="pw-empty">
+      <div class="pw-empty-icon">🔑</div>
+      <div class="pw-empty-text">No password selected</div>
+    </div>
+    <div id="pw-detail">
+      <div class="pw-detail-site" id="pwd-site"></div>
+      <div class="pw-detail-url" id="pwd-url"></div>
+      <div class="pw-detail-row">
+        <div class="pw-detail-label">Username / Email</div>
+        <div class="pw-detail-value"><span id="pwd-username"></span><button class="copy-btn" onclick="copyField('pwd-username')">Copy</button></div>
+      </div>
+      <div class="pw-detail-row">
+        <div class="pw-detail-label">Password</div>
+        <div class="pw-detail-value">
+          <span id="pwd-password" class="pw-mask">••••••••</span>
+          <button class="show-pw-btn" id="show-pw-btn" onclick="togglePwShow()">Show</button>
+          <button class="copy-btn" onclick="copyPw()">Copy</button>
         </div>
+      </div>
+      <div class="pw-detail-row" id="pwd-notes-row" style="display:none;">
+        <div style="width:100%">
+          <div class="pw-detail-label" style="margin-bottom:6px">Notes</div>
+          <div class="pw-notes-text" id="pwd-notes"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="tbtn" onclick="editCurrentPw()">Edit</button>
+        <button class="tbtn danger" onclick="deleteCurrentPw()">Delete</button>
       </div>
     </div>
   </div>
@@ -381,14 +356,14 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 <div id="g-dropdown">
   <div id="g-signed-out">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <div style="width:38px;height:38px;border-radius:50%;background:var(--paper2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px">G</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--paper2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px">G</div>
       <div>
-        <div style="font-size:14px;font-weight:600;font-family:'Caveat',cursive">Google Drive Sync</div>
+        <div style="font-size:15px;font-weight:600;font-family:'Caveat',cursive">Google Drive Sync</div>
         <div style="font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace">Not signed in</div>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.6;font-style:italic">Sign in to back up your notes to Google Drive.</p>
-    <button onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+    <p style="font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.6;font-style:italic">Sign in to back up notes &amp; passwords to Google Drive.</p>
+    <button onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
       <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/></svg>
       Sign in with Google
     </button>
@@ -397,19 +372,46 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
     <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)">
       <img id="g-photo" src="" width="32" height="32" style="border-radius:50%;border:2px solid var(--accent);object-fit:cover">
       <div style="min-width:0">
-        <div style="font-size:13px;font-weight:600;font-family:'Caveat',cursive;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="g-name">—</div>
+        <div style="font-size:14px;font-weight:700;font-family:'Caveat',cursive;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="g-name">—</div>
         <div style="font-size:10px;color:var(--ink3);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="g-email">—</div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
-      <button onclick="backupAllToDrive()" style="width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive;letter-spacing:.3px">☁ Backup All Notes</button>
-      <button onclick="restoreFromDrive()" style="width:100%;padding:9px;background:transparent;color:var(--accent);border:1.5px solid var(--accent);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive">☁ Restore from Drive</button>
+      <button onclick="saveToCloud()" style="width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive">☁ Save to Cloud</button>
+      <button onclick="loadFromCloud()" style="width:100%;padding:9px;background:transparent;color:var(--accent);border:1.5px solid var(--accent);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Caveat',cursive">☁ Load from Cloud</button>
     </div>
     <div id="g-status" style="font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;min-height:14px;margin-bottom:8px"></div>
     <button onclick="signOutGoogle()" style="width:100%;padding:7px;background:transparent;color:var(--ink3);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace">Sign out</button>
   </div>
 </div>
 <div id="g-backdrop" style="display:none;position:fixed;inset:0;z-index:299" onclick="closeGDropdown()"></div>
+
+<!-- Password form modal -->
+<div class="modal-overlay" id="pw-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePwModal()">✕</button>
+    <div class="modal-title" id="pw-modal-title">New Password</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="pw-field"><label>Site / App Name *</label><input id="pf-site" type="text" placeholder="e.g. Gmail"></div>
+      <div class="pw-field"><label>URL (optional)</label><input id="pf-url" type="text" placeholder="https://"></div>
+      <div class="pw-field-row">
+        <div class="pw-field"><label>Username / Email *</label><input id="pf-username" type="text" placeholder="you@email.com"></div>
+      </div>
+      <div class="pw-field">
+        <label>Password *</label>
+        <div style="display:flex;gap:6px">
+          <input id="pf-password" type="password" placeholder="••••••••" style="flex:1;padding:8px 11px;border:1.5px solid var(--line);border-radius:6px;background:var(--paper2);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;">
+          <button onclick="genPassword()" class="tbtn" style="white-space:nowrap">Generate</button>
+        </div>
+      </div>
+      <div class="pw-field"><label>Notes (optional)</label><input id="pf-notes" type="text" placeholder="2FA enabled, recovery email…"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="tbtn" onclick="closePwModal()">Cancel</button>
+        <button class="tbtn ok" onclick="savePwEntry()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Settings modal -->
 <div class="modal-overlay" id="settings-modal">
@@ -419,8 +421,8 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
     <div class="setting-row">
       <div><div class="setting-label">Theme</div><div class="setting-sub">Light paper or dark notebook</div></div>
       <div class="lang-toggle">
-        <button class="lang-btn active" id="theme-dark" onclick="setTheme('dark')">🌙 Dark</button>
-        <button class="lang-btn" id="theme-light" onclick="setTheme('light')">☀ Light</button>
+        <button class="lang-btn" id="theme-dark" onclick="setTheme('dark')">🌙 Dark</button>
+        <button class="lang-btn active" id="theme-light" onclick="setTheme('light')">☀ Light</button>
       </div>
     </div>
     <div class="setting-row">
@@ -432,22 +434,21 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
       </div>
     </div>
     <div class="setting-row" style="border-bottom:none;flex-direction:column;align-items:stretch;gap:10px;padding-top:16px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-family:'JetBrains Mono',monospace">Data</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-family:'JetBrains Mono',monospace">Cloud Sync</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;color:var(--ink3);font-style:italic">Export all notes as JSON</span>
-          <button onclick="exportJSON()" class="tbtn" style="font-size:11px">⬇ Export</button>
+          <span style="font-size:12px;color:var(--ink3);font-style:italic">Save everything to Drive</span>
+          <button onclick="saveToCloud();closeSettings();" class="tbtn" style="font-size:11px">☁ Save to Cloud</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;color:var(--ink3);font-style:italic">Import notes from JSON</span>
-          <label class="tbtn" style="font-size:11px;cursor:pointer">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importJSON(this)"></label>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;color:var(--red);font-style:italic">Delete all notes</span>
-          <button onclick="nukeAll()" class="tbtn danger" style="font-size:11px">Delete All</button>
+          <span style="font-size:12px;color:var(--ink3);font-style:italic">Load everything from Drive</span>
+          <button onclick="loadFromCloud();closeSettings();" class="tbtn" style="font-size:11px">☁ Load from Cloud</button>
         </div>
       </div>
-      <div style="margin-top:6px;padding:9px 11px;background:var(--paper2);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);line-height:1.8;border:1px solid var(--line)" id="data-stats"></div>
+      <div style="margin-top:8px;padding:9px 11px;background:var(--paper2);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);line-height:1.8;border:1px solid var(--line)" id="data-stats"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:4px">
+        <button onclick="nukeAll()" class="tbtn danger" style="font-size:11px">Delete All Data</button>
+      </div>
     </div>
   </div>
 </div>
@@ -457,7 +458,7 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
   <div class="confirm-box">
     <div class="confirm-msg" id="confirm-msg"></div>
     <div class="confirm-actions">
-      <button class="tbtn" id="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="tbtn" onclick="closeConfirm()">Cancel</button>
       <button class="tbtn danger" id="confirm-ok">Confirm</button>
     </div>
   </div>
@@ -465,9 +466,9 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 
 <script>
 // ═══════════════════════════════════════
-// IndexedDB (same pattern as ShiftLog)
+// IndexedDB
 // ═══════════════════════════════════════
-const DB_NAME='NotesSyncDB', DB_VER=1;
+const DB_NAME='NotesSyncDB', DB_VER=2;
 let db;
 function openDB(){
   return new Promise((res,rej)=>{
@@ -477,10 +478,11 @@ function openDB(){
       if(!d.objectStoreNames.contains('notes')){
         const ns=d.createObjectStore('notes',{keyPath:'id'});
         ns.createIndex('updatedAt','updatedAt');
-        ns.createIndex('createdAt','createdAt');
       }
       if(!d.objectStoreNames.contains('settings'))
         d.createObjectStore('settings',{keyPath:'key'});
+      if(!d.objectStoreNames.contains('passwords'))
+        d.createObjectStore('passwords',{keyPath:'id'});
     };
     r.onsuccess=e=>res(e.target.result);
     r.onerror=e=>rej(e.target.error);
@@ -495,82 +497,208 @@ function genId(){return Date.now().toString(36)+Math.random().toString(36).slice
 // ═══════════════════════════════════════
 // State
 // ═══════════════════════════════════════
-let notes=[], activeId=null, settings={theme:'light',sort:'date'};
-let activeTagFilter=null, autoSaveTimer=null;
+let notes=[], passwords=[], activeId=null, activePwId=null;
+let settings={theme:'light',sort:'date'};
+let activeTagFilter=null, autoSaveTimer=null, currentTab='notes';
 let gToken=null, gUser=null, gTokenClient=null;
+let pwShowVisible=false, editingPwId=null;
 
 const now=()=>Date.now();
-const todayStr=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 function fmtDate(ts){
-  const d=new Date(ts), today=new Date(), diff=today-d;
-  if(diff<60000) return 'just now';
-  if(diff<3600000) return Math.floor(diff/60000)+'m ago';
-  if(diff<86400000) return Math.floor(diff/3600000)+'h ago';
-  if(diff<604800000) return Math.floor(diff/86400000)+'d ago';
+  const d=new Date(ts),diff=Date.now()-d;
+  if(diff<60000)return 'just now';
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
+  if(diff<604800000)return Math.floor(diff/86400000)+'d ago';
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
-
 function loading(on){document.getElementById('loading-bar').classList.toggle('show',on);}
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2800);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ═══════════════════════════════════════
+// Tabs
+// ═══════════════════════════════════════
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tab-notes').classList.toggle('active',tab==='notes');
+  document.getElementById('tab-passwords').classList.toggle('active',tab==='passwords');
+  document.getElementById('notes-panel').style.display=tab==='notes'?'flex':'none';
+  document.getElementById('notes-panel').style.flexDirection='column';
+  document.getElementById('passwords-panel').style.display=tab==='passwords'?'flex':'none';
+  document.getElementById('passwords-panel').style.flexDirection='column';
+  document.getElementById('editor-pane').style.display=tab==='notes'?'flex':'none';
+  document.getElementById('password-pane').style.display=tab==='passwords'?'flex':'none';
+  if(tab==='notes')renderList();
+  if(tab==='passwords'){renderPwList();showPwEmpty();}
+}
+
+function handleAddBtn(){currentTab==='notes'?newNote():openPwModal();}
+function handleMobileAdd(){currentTab==='notes'?newNote():openPwModal();}
 
 // ═══════════════════════════════════════
 // Notes CRUD
 // ═══════════════════════════════════════
-async function loadNotes(){
-  const raw=await dbGetAll('notes');
-  notes=raw;
-}
-
 async function newNote(){
   closeSidebar();
   const n={id:genId(),title:'',body:'',tags:[],createdAt:now(),updatedAt:now(),driveFileId:null};
-  await dbPut('notes',n);
-  notes.unshift(n);
-  renderList();
-  selectNote(n.id);
+  await dbPut('notes',n);notes.unshift(n);
+  renderList();selectNote(n.id);
   document.getElementById('note-title-input').focus();
   updateDataStats();
 }
-
 async function deleteCurrentNote(){
   if(!activeId)return;
-  confirm2('Delete this note? This cannot be undone.',async()=>{
-    await dbDelete('notes',activeId);
-    notes=notes.filter(x=>x.id!==activeId);
-    activeId=null;
-    renderList();
-    showEmptyPane();
-    updateDataStats();
-    toast('Note deleted');
+  confirm2('Delete this note?',async()=>{
+    await dbDelete('notes',activeId);notes=notes.filter(x=>x.id!==activeId);
+    activeId=null;renderList();showEmptyPane();updateDataStats();toast('Note deleted');
   });
 }
-
 function activeNote(){return notes.find(x=>x.id===activeId);}
-
 function onTitleChange(){
   const n=activeNote();if(!n)return;
   n.title=document.getElementById('note-title-input').value;
-  n.updatedAt=now();
-  renderList();
-  scheduleAutoSave();
+  n.updatedAt=now();renderList();scheduleAutoSave();
 }
-function onBodyChange(){
+// ===========================================
+// Live checkbox editor (single always-editable view)
+// ===========================================
+let lastFocusedIdx=0;
+
+function renderLines(){
   const n=activeNote();if(!n)return;
-  n.body=document.getElementById('note-body').value;
-  n.updatedAt=now();
-  renderList();
-  updateWordCount();
-  scheduleAutoSave();
+  const wrap=document.getElementById('note-lines');
+  wrap.innerHTML='';
+  const lines=(n.body||'').split('\n');
+  lines.forEach((line,i)=>{
+    const cbMatch=line.match(/^- \[(x| )\] (.*)/);
+    const div=document.createElement('div');
+    div.dataset.idx=i;
+    if(cbMatch){
+      const done=cbMatch[1]==='x';
+      div.className='cb-line'+(done?' done':'');
+      const cb=document.createElement('input');
+      cb.type='checkbox';cb.checked=done;
+      cb.addEventListener('change',()=>toggleLineCheckbox(i));
+      const span=document.createElement('span');
+      span.className='line-text';span.contentEditable='true';span.dataset.type='cb';span.dataset.idx=i;
+      span.textContent=cbMatch[2];
+      span.addEventListener('input',()=>onLineInput(i,span));
+      span.addEventListener('keydown',e=>onLineKeydown(e,i,span));
+      span.addEventListener('focus',()=>lastFocusedIdx=i);
+      div.appendChild(cb);div.appendChild(span);
+    }else{
+      div.className='plain-line';div.contentEditable='true';div.dataset.type='plain';
+      div.textContent=line;
+      div.addEventListener('input',()=>onLineInput(i,div));
+      div.addEventListener('keydown',e=>onLineKeydown(e,i,div));
+      div.addEventListener('focus',()=>lastFocusedIdx=i);
+    }
+    wrap.appendChild(div);
+  });
 }
-function scheduleAutoSave(){
-  clearTimeout(autoSaveTimer);
-  autoSaveTimer=setTimeout(()=>saveCurrentNoteLocally(),1500);
+
+function toggleLineCheckbox(idx){
+  const n=activeNote();if(!n)return;
+  const lines=n.body.split('\n');
+  lines[idx]=lines[idx].replace(/^- \[(x| )\]/,m=>m.includes('x')?'- [ ]':'- [x]');
+  n.body=lines.join('\n');n.updatedAt=now();
+  const div=document.querySelector(`#note-lines .cb-line[data-idx="${idx}"]`);
+  if(div)div.classList.toggle('done');
+  updateWordCount();scheduleAutoSave();renderList();
 }
+
+function onLineInput(idx,el){
+  const n=activeNote();if(!n)return;
+  const lines=n.body.split('\n');
+  if(el.dataset.type==='cb'){
+    const checked=el.parentElement.classList.contains('done');
+    lines[idx]=`- [${checked?'x':' '}] ${el.textContent}`;
+  }else{
+    lines[idx]=el.textContent;
+  }
+  n.body=lines.join('\n');n.updatedAt=now();
+  updateWordCount();scheduleAutoSave();renderList();
+}
+
+function caretOffset(el){
+  const sel=window.getSelection();if(!sel.rangeCount)return el.textContent.length;
+  const range=sel.getRangeAt(0).cloneRange();
+  range.selectNodeContents(el);
+  range.setEnd(sel.getRangeAt(0).endContainer,sel.getRangeAt(0).endOffset);
+  return range.toString().length;
+}
+
+function onLineKeydown(e,idx,el){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const pos=caretOffset(el);
+    const full=el.textContent;
+    splitLine(idx,full.slice(0,pos),full.slice(pos),el.dataset.type==='cb');
+  }else if(e.key==='Backspace'){
+    const pos=caretOffset(el);
+    if(pos===0&&idx>0){e.preventDefault();mergeLineUp(idx);}
+  }
+}
+
+function splitLine(idx,before,after,wasCheckbox){
+  const n=activeNote();if(!n)return;
+  const lines=n.body.split('\n');
+  const prefix=wasCheckbox?(lines[idx].match(/^- \[(x| )\] /)||['- [ ] '])[0]:'';
+  lines[idx]=wasCheckbox?prefix+before:before;
+  lines.splice(idx+1,0,after);
+  n.body=lines.join('\n');n.updatedAt=now();
+  renderLines();focusLine(idx+1,0);
+  updateWordCount();scheduleAutoSave();renderList();
+}
+
+function mergeLineUp(idx){
+  const n=activeNote();if(!n)return;
+  const lines=n.body.split('\n');
+  if(idx===0)return;
+  const curMatch=lines[idx].match(/^- \[(x| )\] (.*)/);
+  const curText=curMatch?curMatch[2]:lines[idx];
+  const prevMatch=lines[idx-1].match(/^- \[(x| )\] (.*)/);
+  let mergePos;
+  if(prevMatch){mergePos=prevMatch[2].length;lines[idx-1]=`- [${prevMatch[1]}] ${prevMatch[2]}${curText}`;}
+  else{mergePos=lines[idx-1].length;lines[idx-1]=lines[idx-1]+curText;}
+  lines.splice(idx,1);
+  n.body=lines.join('\n');n.updatedAt=now();
+  renderLines();focusLine(idx-1,mergePos);
+  updateWordCount();scheduleAutoSave();renderList();
+}
+
+function focusLine(idx,offset){
+  requestAnimationFrame(()=>{
+    const wrap=document.getElementById('note-lines');
+    const el=wrap.querySelector(`[data-idx="${idx}"].line-text`)||wrap.querySelector(`.plain-line[data-idx="${idx}"]`);
+    if(!el)return;
+    el.focus();
+    const sel=window.getSelection();const range=document.createRange();
+    const node=el.firstChild;
+    if(node){range.setStart(node,Math.min(offset,node.length));}
+    else{range.setStart(el,0);}
+    range.collapse(true);sel.removeAllRanges();sel.addRange(range);
+  });
+}
+
+function insertCheckbox(){
+  const n=activeNote();if(!n)return;
+  const idx=lastFocusedIdx||0;
+  const lines=n.body.split('\n');
+  if(lines[idx]===undefined)return;
+  if(!/^- \[(x| )\] /.test(lines[idx]))lines[idx]='- [ ] '+lines[idx];
+  n.body=lines.join('\n');n.updatedAt=now();
+  renderLines();focusLine(idx,lines[idx].replace(/^- \[(x| )\] /,'').length);
+  updateWordCount();scheduleAutoSave();renderList();
+}
+
+function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>saveCurrentNoteLocally(),1500);}
 async function saveCurrentNoteLocally(){
   const n=activeNote();if(!n)return;
-  await dbPut('notes',n);
-  setStatus('Saved locally');
+  await dbPut('notes',n);setStatus('Saved locally');
 }
+
 
 // ═══════════════════════════════════════
 // Tags
@@ -583,42 +711,31 @@ function handleTagInput(e){
   const n=activeNote();if(!n)return;
   if(!n.tags)n.tags=[];
   if(!n.tags.includes(val))n.tags.push(val);
-  e.target.value='';
-  renderTagsEditor();
-  renderTagsBar();
-  scheduleAutoSave();
+  e.target.value='';renderTagsEditor();renderTagsBar();scheduleAutoSave();
 }
 function removeTag(tag){
   const n=activeNote();if(!n)return;
   n.tags=(n.tags||[]).filter(t=>t!==tag);
-  renderTagsEditor();
-  renderTagsBar();
-  scheduleAutoSave();
+  renderTagsEditor();renderTagsBar();scheduleAutoSave();
 }
 function renderTagsEditor(){
   const n=activeNote();
   const el=document.getElementById('tags-editor');
   const input=document.getElementById('tag-add-input');
-  const existing=el.querySelectorAll('.tag-pill');
-  existing.forEach(x=>x.remove());
+  el.querySelectorAll('.tag-pill').forEach(x=>x.remove());
   (n?.tags||[]).forEach(tag=>{
-    const pill=document.createElement('div');
-    pill.className='tag-pill';
+    const pill=document.createElement('div');pill.className='tag-pill';
     pill.innerHTML=`#${tag}<button onclick="removeTag('${tag}')">✕</button>`;
     el.insertBefore(pill,input);
   });
 }
 function renderTagsBar(){
-  // Collect all unique tags
-  const allTags=new Set();
-  notes.forEach(n=>(n.tags||[]).forEach(t=>allTags.add(t)));
-  const bar=document.getElementById('tags-bar');
-  bar.innerHTML='';
+  const allTags=new Set();notes.forEach(n=>(n.tags||[]).forEach(t=>allTags.add(t)));
+  const bar=document.getElementById('tags-bar');bar.innerHTML='';
   if(!allTags.size)return;
   const allBtn=document.createElement('div');
   allBtn.className='tag-chip'+(activeTagFilter===null?' active':'');
-  allBtn.textContent='All';
-  allBtn.onclick=()=>{activeTagFilter=null;renderTagsBar();renderList();};
+  allBtn.textContent='All';allBtn.onclick=()=>{activeTagFilter=null;renderTagsBar();renderList();};
   bar.appendChild(allBtn);
   allTags.forEach(tag=>{
     const chip=document.createElement('div');
@@ -640,50 +757,38 @@ function getSortedFiltered(){
     return (n.title||'').toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q);
   });
   const s=settings.sort||'date';
-  if(s==='title') list.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
-  else if(s==='created') list.sort((a,b)=>b.createdAt-a.createdAt);
+  if(s==='title')list.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
+  else if(s==='created')list.sort((a,b)=>b.createdAt-a.createdAt);
   else list.sort((a,b)=>b.updatedAt-a.updatedAt);
   return list;
 }
-
 function renderList(){
   const el=document.getElementById('notes-list');
   const list=getSortedFiltered();
-  if(!list.length){
-    el.innerHTML=`<div class="empty-list"><div class="icon">📋</div>${notes.length?'No matches':'No notes yet'}</div>`;
-    return;
-  }
+  if(!list.length){el.innerHTML=`<div class="empty-list">${notes.length?'No matches':'No notes yet'}</div>`;return;}
   el.innerHTML=list.map(n=>{
-    const preview=(n.body||'').replace(/[#*`>\-\[\]]/g,'').trim().slice(0,80)||'No content';
+    const cbTotal=(n.body||'').match(/^- \[[ x]\]/gm)?.length||0;
+    const cbDone=(n.body||'').match(/^- \[x\]/gm)?.length||0;
+    const preview=(n.body||'').replace(/^- \[[ x]\] /gm,'').replace(/[*_`>#-]/g,'').trim().slice(0,70)||'Empty';
     const tagsHtml=(n.tags||[]).slice(0,3).map(t=>`<span class="ni-tag">#${t}</span>`).join('');
+    const cbBadge=cbTotal?`<span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink3)">${cbDone}/${cbTotal}</span>`:'';
     return `<div class="note-item${n.id===activeId?' active':''}" onclick="selectNote('${n.id}')">
       <div class="ni-title">${esc(n.title||'Untitled')}</div>
       <div class="ni-preview">${esc(preview)}</div>
-      <div class="ni-footer">
-        <span class="ni-date">${fmtDate(n.updatedAt)}</span>
-        <div class="ni-tags">${tagsHtml}</div>
-        ${n.driveFileId?'<div class="sync-dot" title="Synced to Drive"></div>':''}
-      </div>
+      <div class="ni-footer"><span class="ni-date">${fmtDate(n.updatedAt)}</span><div class="ni-tags">${tagsHtml}</div>${cbBadge}${n.driveFileId?'<div class="sync-dot"></div>':''}</div>
     </div>`;
   }).join('');
 }
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ═══════════════════════════════════════
-// Select / show note
-// ═══════════════════════════════════════
 function selectNote(id){
-  activeId=id;
-  const n=notes.find(x=>x.id===id);
+  activeId=id;const n=notes.find(x=>x.id===id);
   if(!n){showEmptyPane();return;}
   showEditorPane();
   document.getElementById('note-title-input').value=n.title||'';
-  document.getElementById('note-body').value=n.body||'';
-  renderTagsEditor();
-  updateWordCount();
-  setStatus(n.driveFileId?'Synced to Drive ✓':'Local only');
-  renderList();
-  closeSidebar();
+  lastFocusedIdx=0;renderLines();
+  renderTagsEditor();updateWordCount();
+  setStatus(n.driveFileId?'Synced ✓':'Local only');
+  renderList();closeSidebar();
 }
 function showEmptyPane(){
   document.getElementById('empty-pane').style.display='flex';
@@ -692,46 +797,147 @@ function showEmptyPane(){
 function showEditorPane(){
   document.getElementById('empty-pane').style.display='none';
   const ei=document.getElementById('editor-inner');
-  ei.style.display='flex';
-  ei.style.flexDirection='column';
-  ei.style.height='100%';
+  ei.style.display='flex';ei.style.flexDirection='column';ei.style.height='100%';
 }
 function updateWordCount(){
-  const b=document.getElementById('note-body').value;
+  const n=activeNote();const b=n?(n.body||''):'';
   const words=b.trim()?b.trim().split(/\s+/).length:0;
   document.getElementById('word-count').textContent=words+' words';
   document.getElementById('char-count').textContent=b.length+' chars';
 }
 function setStatus(msg,cls){
   document.getElementById('status-msg').textContent=msg;
-  const btn=document.getElementById('save-btn');
-  btn.className='tbtn'+(cls?' '+cls:'');
+  document.getElementById('save-btn').className='tbtn'+(cls?' '+cls:'');
+}
+function fmt(before,after){
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount&&!sel.isCollapsed&&sel.toString()){
+    document.execCommand('insertText',false,before+sel.toString()+after);
+    const n=activeNote();if(n){n.updatedAt=now();updateWordCount();scheduleAutoSave();renderList();}
+    return;
+  }
+  const n=activeNote();if(!n)return;
+  const idx=lastFocusedIdx||0;
+  const lines=n.body.split('\n');
+  if(lines[idx]===undefined)return;
+  lines[idx]=lines[idx]+before+after;
+  n.body=lines.join('\n');n.updatedAt=now();
+  renderLines();focusLine(idx,lines[idx].length);
+  updateWordCount();scheduleAutoSave();renderList();
+}
+function fmtLine(prefix){
+  const n=activeNote();if(!n)return;
+  const idx=lastFocusedIdx||0;
+  const lines=n.body.split('\n');
+  if(lines[idx]===undefined)return;
+  lines[idx]=prefix+lines[idx];
+  n.body=lines.join('\n');n.updatedAt=now();
+  renderLines();focusLine(idx,lines[idx].length);
+  updateWordCount();scheduleAutoSave();renderList();
 }
 
 // ═══════════════════════════════════════
-// Formatting helpers
+// Passwords CRUD
 // ═══════════════════════════════════════
-function fmt(before,after){
-  const ta=document.getElementById('note-body');
-  const s=ta.selectionStart, e=ta.selectionEnd;
-  const sel=ta.value.slice(s,e);
-  const rep=before+sel+after;
-  ta.setRangeText(rep,s,e,'end');
-  onBodyChange();
+function openPwModal(pw=null){
+  editingPwId=pw?pw.id:null;
+  document.getElementById('pw-modal-title').textContent=pw?'Edit Password':'New Password';
+  document.getElementById('pf-site').value=pw?.site||'';
+  document.getElementById('pf-url').value=pw?.url||'';
+  document.getElementById('pf-username').value=pw?.username||'';
+  document.getElementById('pf-password').value=pw?.password||'';
+  document.getElementById('pf-notes').value=pw?.notes||'';
+  document.getElementById('pw-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('pf-site').focus(),100);
 }
-function fmtLine(prefix){
-  const ta=document.getElementById('note-body');
-  const s=ta.selectionStart;
-  const lineStart=ta.value.lastIndexOf('\n',s-1)+1;
-  ta.setRangeText(prefix,lineStart,lineStart,'end');
-  onBodyChange();
+function closePwModal(){document.getElementById('pw-modal').classList.remove('open');}
+async function savePwEntry(){
+  const site=document.getElementById('pf-site').value.trim();
+  const username=document.getElementById('pf-username').value.trim();
+  const password=document.getElementById('pf-password').value;
+  if(!site||!username||!password){toast('Fill in site, username and password','err');return;}
+  const entry={
+    id:editingPwId||genId(),site,
+    url:document.getElementById('pf-url').value.trim(),
+    username,password,
+    notes:document.getElementById('pf-notes').value.trim(),
+    createdAt:editingPwId?(passwords.find(p=>p.id===editingPwId)?.createdAt||now()):now(),
+    updatedAt:now()
+  };
+  await dbPut('passwords',entry);
+  if(editingPwId){passwords=passwords.map(p=>p.id===editingPwId?entry:p);}
+  else passwords.unshift(entry);
+  renderPwList();selectPw(entry.id);closePwModal();
+  updateDataStats();toast(editingPwId?'Updated ✓':'Saved ✓');
+  editingPwId=null;
 }
-function fmtBlock(){
-  const ta=document.getElementById('note-body');
-  const s=ta.selectionStart,e=ta.selectionEnd;
-  const sel=ta.value.slice(s,e);
-  ta.setRangeText('```\n'+sel+'\n```',s,e,'end');
-  onBodyChange();
+function genPassword(){
+  const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let pw='';for(let i=0;i<16;i++)pw+=chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('pf-password').value=pw;
+  document.getElementById('pf-password').type='text';
+}
+function renderPwList(){
+  const q=document.getElementById('pw-search').value.toLowerCase().trim();
+  const el=document.getElementById('passwords-list');
+  let list=[...passwords].sort((a,b)=>b.updatedAt-a.updatedAt);
+  if(q)list=list.filter(p=>(p.site||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q));
+  if(!list.length){el.innerHTML='<div class="empty-list">No passwords yet</div>';return;}
+  el.innerHTML=list.map(p=>`
+    <div class="pw-item${p.id===activePwId?' active':''}" onclick="selectPw('${p.id}')">
+      <div class="pw-icon">${esc((p.site||'?').charAt(0).toUpperCase())}</div>
+      <div class="pw-info">
+        <div class="pw-site">${esc(p.site)}</div>
+        <div class="pw-user">${esc(p.username)}</div>
+      </div>
+    </div>`).join('');
+}
+function selectPw(id){
+  activePwId=id;const p=passwords.find(x=>x.id===id);
+  if(!p){showPwEmpty();return;}
+  pwShowVisible=false;
+  document.getElementById('pwd-site').textContent=p.site||'';
+  document.getElementById('pwd-url').textContent=p.url||'';
+  document.getElementById('pwd-url').style.display=p.url?'block':'none';
+  document.getElementById('pwd-username').textContent=p.username||'';
+  document.getElementById('pwd-password').textContent='••••••••';
+  document.getElementById('pwd-password').dataset.real=p.password||'';
+  document.getElementById('show-pw-btn').textContent='Show';
+  const notesRow=document.getElementById('pwd-notes-row');
+  if(p.notes){document.getElementById('pwd-notes').textContent=p.notes;notesRow.style.display='block';}
+  else notesRow.style.display='none';
+  document.getElementById('pw-empty').style.display='none';
+  document.getElementById('pw-detail').classList.add('show');
+  renderPwList();closeSidebar();
+}
+function showPwEmpty(){
+  activePwId=null;
+  document.getElementById('pw-empty').style.display='flex';
+  document.getElementById('pw-detail').classList.remove('show');
+}
+function togglePwShow(){
+  pwShowVisible=!pwShowVisible;
+  const el=document.getElementById('pwd-password');
+  el.textContent=pwShowVisible?el.dataset.real:'••••••••';
+  document.getElementById('show-pw-btn').textContent=pwShowVisible?'Hide':'Show';
+}
+function copyField(id){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>toast('Copied ✓'));
+}
+function copyPw(){
+  const el=document.getElementById('pwd-password');
+  navigator.clipboard.writeText(el.dataset.real).then(()=>toast('Password copied ✓'));
+}
+function editCurrentPw(){
+  const p=passwords.find(x=>x.id===activePwId);if(p)openPwModal(p);
+}
+async function deleteCurrentPw(){
+  if(!activePwId)return;
+  confirm2('Delete this password entry?',async()=>{
+    await dbDelete('passwords',activePwId);
+    passwords=passwords.filter(x=>x.id!==activePwId);
+    showPwEmpty();renderPwList();updateDataStats();toast('Deleted');
+  });
 }
 
 // ═══════════════════════════════════════
@@ -741,16 +947,10 @@ async function loadSettings(){
   const all=await dbGetAll('settings');
   const saved=all.find(s=>s.key==='main');
   if(saved)settings={...settings,...saved};
-  applyTheme(settings.theme||'dark');
+  applyTheme(settings.theme||'light');
 }
-async function saveSettings(){
-  await dbPut('settings',{key:'main',...settings});
-}
-function setTheme(t){
-  settings.theme=t;
-  applyTheme(t);
-  saveSettings();
-}
+async function saveSettings(){await dbPut('settings',{key:'main',...settings});}
+function setTheme(t){settings.theme=t;applyTheme(t);saveSettings();}
 function applyTheme(t){
   document.body.classList.toggle('dark-nb',t==='dark');
   document.getElementById('theme-dark').classList.toggle('active',t==='dark');
@@ -758,80 +958,29 @@ function applyTheme(t){
 }
 function setSort(s){
   settings.sort=s;
-  ['date','title','created'].forEach(x=>{
-    document.getElementById('sort-'+x).classList.toggle('active',x===s);
-  });
+  ['date','title','created'].forEach(x=>document.getElementById('sort-'+x).classList.toggle('active',x===s));
   const labels={date:'↓ Date',title:'↓ Title',created:'↓ Created'};
-  document.getElementById('sort-btn').textContent=labels[s]||'↓ Date';
-  saveSettings();
-  renderList();
+  document.getElementById('sort-btn').textContent=labels[s];
+  saveSettings();renderList();
 }
 function cycleSort(){
   const order=['date','title','created'];
-  const cur=settings.sort||'date';
-  const next=order[(order.indexOf(cur)+1)%order.length];
-  setSort(next);
+  setSort(order[(order.indexOf(settings.sort||'date')+1)%order.length]);
 }
-function openSettings(){
-  updateDataStats();
-  document.getElementById('settings-modal').classList.add('open');
-}
+function openSettings(){updateDataStats();document.getElementById('settings-modal').classList.add('open');}
 function closeSettings(){document.getElementById('settings-modal').classList.remove('open');}
-
-// ═══════════════════════════════════════
-// Data stats
-// ═══════════════════════════════════════
 function updateDataStats(){
-  const allTags=new Set();
-  notes.forEach(n=>(n.tags||[]).forEach(t=>allTags.add(t)));
   const synced=notes.filter(n=>n.driveFileId).length;
   document.getElementById('data-stats').textContent=
-    `Notes: ${notes.length}  ·  Tags: ${allTags.size}  ·  Synced: ${synced}`;
+    `Notes: ${notes.length}  ·  Passwords: ${passwords.length}  ·  Synced: ${synced}`;
 }
-
-// ═══════════════════════════════════════
-// Import / Export / Nuke
-// ═══════════════════════════════════════
-function exportJSON(){
-  const data=JSON.stringify({version:1,exportedAt:new Date().toISOString(),notes,settings},null,2);
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
-  a.download=`notesync_backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('Exported ✓');
-}
-function importJSON(input){
-  const file=input.files[0];if(!file)return;
-  const r=new FileReader();
-  r.onload=async e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      if(!Array.isArray(data.notes))throw new Error('Invalid file');
-      if(!confirm(`Import ${data.notes.length} notes? This replaces all existing notes.`))return;
-      loading(true);
-      await dbClear('notes');
-      for(const n of data.notes)await dbPut('notes',n);
-      notes=data.notes.sort((a,b)=>b.updatedAt-a.updatedAt);
-      activeId=null;showEmptyPane();
-      renderList();renderTagsBar();updateDataStats();
-      loading(false);toast(`Imported ${notes.length} notes ✓`);
-    }catch(err){loading(false);toast('Import failed: '+err.message,'err');}
-    input.value='';
-  };
-  r.readAsText(file);
-}
-function nukeAll(){
-  confirm2('Delete ALL notes permanently? This cannot be undone.',async()=>{
-    await dbClear('notes');notes=[];activeId=null;
-    renderList();renderTagsBar();showEmptyPane();updateDataStats();
-    toast('All notes deleted');
+async function nukeAll(){
+  confirm2('Delete ALL notes and passwords permanently?',async()=>{
+    await dbClear('notes');await dbClear('passwords');
+    notes=[];passwords=[];activeId=null;activePwId=null;
+    renderList();renderTagsBar();renderPwList();showEmptyPane();showPwEmpty();updateDataStats();toast('All data deleted');
   });
 }
-
-// ═══════════════════════════════════════
-// Confirm dialog
-// ═══════════════════════════════════════
 function confirm2(msg,onOk){
   document.getElementById('confirm-msg').textContent=msg;
   document.getElementById('confirm-modal').classList.add('open');
@@ -840,85 +989,65 @@ function confirm2(msg,onOk){
 function closeConfirm(){document.getElementById('confirm-modal').classList.remove('open');}
 
 // ═══════════════════════════════════════
-// Google OAuth (same pattern as ShiftLog)
+// Google OAuth + Drive
 // ═══════════════════════════════════════
-// Client ID loaded from config/config.js
 const GOOGLE_CLIENT_ID=window.NOTESYNC_CLIENT_ID||'';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
-const DRIVE_BACKUP_FILENAME='notesync_backup.json';
+const BACKUP_FILENAME='notesync_backup.json';
 
 function initGoogleAuth(){
   if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,500);return;}
   gTokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,
-    scope:DRIVE_SCOPE,
+    client_id:GOOGLE_CLIENT_ID,scope:DRIVE_SCOPE,
     callback:(resp)=>{
       if(resp.error){gStatus('Auth error: '+resp.error,true);return;}
-      gToken=resp.access_token;
-      fetchGUserInfo();
+      gToken=resp.access_token;fetchGUserInfo();
     }
   });
-  // Always request fresh token to ensure correct scopes
-  // sessionStorage restore removed to prevent stale scope issues
 }
 async function fetchGUserInfo(){
   if(!gToken)return;
   try{
     const r=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{headers:{Authorization:'Bearer '+gToken}});
     if(!r.ok){gToken=null;gUser=null;updateGUI();return;}
-    gUser=await r.json();
-    // token kept in memory only
-    updateGUI();
+    gUser=await r.json();updateGUI();
   }catch{gToken=null;updateGUI();}
 }
 function updateGUI(){
   const isIn=!!gUser;
   document.getElementById('g-signed-out').style.display=isIn?'none':'block';
   document.getElementById('g-signed-in').style.display=isIn?'block':'none';
-  const btn=document.getElementById('g-profile-btn');
   const inner=document.getElementById('g-avatar-inner');
-  const label=document.getElementById('g-label');
   if(isIn){
-    inner.innerHTML=`<img src="${gUser.picture||''}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)">`;
-    label.textContent=(gUser.given_name||gUser.name||'').split(' ')[0];
+    inner.innerHTML=`<img src="${gUser.picture||''}" style="width:22px;height:22px;border-radius:50%;object-fit:cover">`;
     document.getElementById('g-name').textContent=gUser.name||'';
     document.getElementById('g-email').textContent=gUser.email||'';
     const ph=document.getElementById('g-photo');if(ph)ph.src=gUser.picture||'';
-  }else{
-    inner.innerHTML='G';
-    label.textContent='Sign in';
-  }
+  }else{inner.innerHTML='G';}
   updateDataStats();
 }
 function signInWithGoogle(){if(!gTokenClient)return;closeGDropdown();gTokenClient.requestAccessToken({prompt:'consent',login_hint:'kaungsetlin3013@gmail.com',scope:DRIVE_SCOPE});}
 function signOutGoogle(){
   if(gToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(gToken,()=>{});
-  gToken=null;gUser=null;
-  updateGUI();closeGDropdown();toast('Signed out');
+  gToken=null;gUser=null;updateGUI();closeGDropdown();toast('Signed out');
 }
 function handleGProfileClick(){
   const dd=document.getElementById('g-dropdown'),bd=document.getElementById('g-backdrop');
   if(dd.style.display==='none'||!dd.style.display){dd.style.display='block';bd.style.display='block';}
   else closeGDropdown();
 }
-function closeGDropdown(){
-  document.getElementById('g-dropdown').style.display='none';
-  document.getElementById('g-backdrop').style.display='none';
-}
-function gStatus(msg,err=false){
-  const el=document.getElementById('g-status');
-  if(el){el.textContent=msg;el.style.color=err?'var(--red)':'var(--muted)';}
-}
+function closeGDropdown(){document.getElementById('g-dropdown').style.display='none';document.getElementById('g-backdrop').style.display='none';}
+function gStatus(msg,err=false){const el=document.getElementById('g-status');if(el){el.textContent=msg;el.style.color=err?'var(--red)':'var(--ink3)';}}
 async function driveReq(method,url,body,ct){
   if(!gToken)throw new Error('Not signed in');
   const opts={method,headers:{Authorization:'Bearer '+gToken}};
   if(body){opts.body=body;opts.headers['Content-Type']=ct||'application/json';}
   const r=await fetch(url,opts);
-  if(r.status===401){gToken=null;gUser=null;updateGUI();throw new Error('Session expired — please sign in again');}
+  if(r.status===401){gToken=null;gUser=null;updateGUI();throw new Error('Session expired — sign in again');}
   return r;
 }
 async function findDriveFile(name){
-  const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files?q=name='${name}'+and+trashed=false&fields=files(id,name,modifiedTime)&spaces=drive`);
+  const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files?q=name='${name}'+and+trashed=false&fields=files(id,name)&spaces=drive`);
   const d=await r.json();return d.files?.[0]||null;
 }
 async function uploadToDrive(name,content,existingId){
@@ -928,104 +1057,72 @@ async function uploadToDrive(name,content,existingId){
     return existingId;
   }else{
     const meta=JSON.stringify({name,mimeType:'application/json'});
-    const boundary='notes_sync_bnd';
+    const boundary='notesync_bnd';
     const body=`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
     const r=await driveReq('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',body,`multipart/related; boundary="${boundary}"`);
     if(!r.ok){const e=await r.text();throw new Error('Upload failed: '+e);}
-    const d=await r.json();
-    console.log('Drive upload response:',d);
-    return d.id;
+    const d=await r.json();return d.id;
   }
 }
 
-// Backup ALL notes to a single JSON file on Drive
-async function backupAllToDrive(){
+async function saveToCloud(){
   if(!gToken){signInWithGoogle();return;}
-  gStatus('Uploading…');loading(true);
+  gStatus('Saving to cloud…');loading(true);
   try{
-    const content=JSON.stringify({version:1,exportedAt:new Date().toISOString(),notes,settings},null,2);
-    const existing=await findDriveFile(DRIVE_BACKUP_FILENAME);
-    const fileId=await uploadToDrive(DRIVE_BACKUP_FILENAME,content,existing?.id);
-    if(!fileId)throw new Error('Upload returned no file ID');
-    gStatus(`✓ Backed up ${notes.length} notes — ${new Date().toLocaleTimeString()}`);
-    toast('Backed up to Drive ✓');closeGDropdown();
-  }catch(e){
-    console.error('Backup error:',e);
-    gStatus('✗ '+e.message,true);
-    toast('Backup failed: '+e.message,'err');
-  }
-  loading(false);
-}
-async function debugDrive(){
-  // Test: list all files visible to this app
-  try{
-    const r=await driveReq('GET','https://www.googleapis.com/drive/v3/files?fields=files(id,name,mimeType)&spaces=drive');
-    const d=await r.json();
-    console.log('Drive files visible to app:',d);
-    toast('Check console for Drive file list');
-  }catch(e){console.error(e);toast(e.message,'err');}
-}
-
-// Restore from Drive
-async function restoreFromDrive(){
-  if(!gToken){signInWithGoogle();return;}
-  if(!confirm('Restore from Drive? This will replace all local notes.'))return;
-  gStatus('Searching Drive…');loading(true);
-  try{
-    const file=await findDriveFile(DRIVE_BACKUP_FILENAME);
-    if(!file)throw new Error(`"${DRIVE_BACKUP_FILENAME}" not found. Back up first.`);
-    const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`);
-    const data=await r.json();
-    if(!Array.isArray(data.notes))throw new Error('Invalid backup file');
-    await dbClear('notes');
-    for(const n of data.notes)await dbPut('notes',n);
-    notes=data.notes.sort((a,b)=>b.updatedAt-a.updatedAt);
-    activeId=null;showEmptyPane();
-    renderList();renderTagsBar();updateDataStats();
-    gStatus(`✓ Restored ${notes.length} notes`);
-    toast('Restored from Drive ✓');closeGDropdown();
-  }catch(e){gStatus('✗ '+e.message,true);toast('Restore failed: '+e.message,'err');}
+    const content=JSON.stringify({version:2,savedAt:new Date().toISOString(),notes,passwords,settings},null,2);
+    const existing=await findDriveFile(BACKUP_FILENAME);
+    const fileId=await uploadToDrive(BACKUP_FILENAME,content,existing?.id);
+    if(!fileId)throw new Error('No file ID returned');
+    gStatus(`✓ Saved — ${new Date().toLocaleTimeString()}`);
+    toast('Saved to cloud ✓');closeGDropdown();
+  }catch(e){console.error(e);gStatus('✗ '+e.message,true);toast('Save failed: '+e.message,'err');}
   loading(false);
 }
 
-// Save single current note to Drive as its own file
+async function loadFromCloud(){
+  if(!gToken){signInWithGoogle();return;}
+  confirm2('Load from cloud? This replaces all local data.',async()=>{
+    gStatus('Loading from cloud…');loading(true);
+    try{
+      const file=await findDriveFile(BACKUP_FILENAME);
+      if(!file)throw new Error(`"${BACKUP_FILENAME}" not found — save first`);
+      const r=await driveReq('GET',`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`);
+      const data=await r.json();
+      if(!Array.isArray(data.notes))throw new Error('Invalid backup file');
+      await dbClear('notes');await dbClear('passwords');
+      for(const n of data.notes)await dbPut('notes',n);
+      for(const p of (data.passwords||[]))await dbPut('passwords',p);
+      notes=data.notes.sort((a,b)=>b.updatedAt-a.updatedAt);
+      passwords=data.passwords||[];
+      activeId=null;activePwId=null;
+      renderList();renderTagsBar();renderPwList();
+      showEmptyPane();showPwEmpty();updateDataStats();
+      gStatus(`✓ Loaded ${notes.length} notes, ${passwords.length} passwords`);
+      toast('Loaded from cloud ✓');closeGDropdown();
+    }catch(e){gStatus('✗ '+e.message,true);toast('Load failed: '+e.message,'err');}
+    loading(false);
+  });
+}
+
 async function saveNoteToDrive(){
   const n=activeNote();if(!n)return;
-  if(!gToken){
-    // save locally and hint
-    await saveCurrentNoteLocally();
-    toast('Sign in to save to Drive','err');return;
-  }
-  const btn=document.getElementById('save-btn');
-  btn.className='tbtn saving';setStatus('Saving to Drive…');
+  if(!gToken){await saveCurrentNoteLocally();toast('Sign in to save to Drive','err');return;}
+  document.getElementById('save-btn').className='tbtn saving';setStatus('Saving…');
   try{
     const fname=`note_${n.id}.json`;
-    const content=JSON.stringify(n,null,2);
     const existing=n.driveFileId?{id:n.driveFileId}:await findDriveFile(fname);
-    const fileId=await uploadToDrive(fname,content,existing?.id);
-    n.driveFileId=fileId;
-    await dbPut('notes',n);
-    renderList();
-    setStatus('Saved to Drive ✓','ok');
-    setTimeout(()=>setStatus('Synced to Drive ✓'),2500);
-    btn.className='tbtn';
-  }catch(e){
-    setStatus('Save failed','err');toast('Save failed: '+e.message,'err');
-    btn.className='tbtn';
-  }
+    const fileId=await uploadToDrive(fname,JSON.stringify(n,null,2),existing?.id);
+    n.driveFileId=fileId;await dbPut('notes',n);renderList();
+    setStatus('Saved to Drive ✓','ok');setTimeout(()=>setStatus('Synced ✓'),2500);
+  }catch(e){setStatus('Save failed');toast('Save failed: '+e.message,'err');}
+  document.getElementById('save-btn').className='tbtn';
 }
 
 // ═══════════════════════════════════════
 // Mobile sidebar
 // ═══════════════════════════════════════
-function openSidebar(){
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebar-backdrop').classList.add('show');
-}
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-backdrop').classList.remove('show');
-}
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-backdrop').classList.add('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-backdrop').classList.remove('show');}
 
 // ═══════════════════════════════════════
 // Startup
@@ -1034,44 +1131,33 @@ function closeSidebar(){
   try{
     db=await openDB();
     await loadSettings();
-    await loadNotes();
+    const [rawNotes,rawPw]=await Promise.all([dbGetAll('notes'),dbGetAll('passwords')]);
+    notes=rawNotes.sort((a,b)=>b.updatedAt-a.updatedAt);
+    passwords=rawPw.sort((a,b)=>b.updatedAt-a.updatedAt);
 
     document.getElementById('main-app').style.display='flex';
-    const splash=document.getElementById('splash');
-    splash.classList.add('hide');
-    setTimeout(()=>splash.style.display='none',450);
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(()=>document.getElementById('splash').style.display='none',450);
 
-    renderList();
-    renderTagsBar();
-    updateDataStats();
+    renderList();renderTagsBar();renderPwList();updateDataStats();
+    switchTab('notes');
     initGoogleAuth();
 
-    // Keyboard shortcut: Cmd/Ctrl+N = new note
     document.addEventListener('keydown',e=>{
       if((e.metaKey||e.ctrlKey)&&e.key==='n'){e.preventDefault();newNote();}
       if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveNoteToDrive();}
     });
 
-    // Settings sort buttons highlight
-    ['date','title','created'].forEach(x=>{
-      document.getElementById('sort-'+x).classList.toggle('active',x===(settings.sort||'date'));
-    });
-    const labels={date:'↓ Date',title:'↓ Title',created:'↓ Created'};
-    document.getElementById('sort-btn').textContent=labels[settings.sort||'date'];
+    ['date','title','created'].forEach(x=>document.getElementById('sort-'+x).classList.toggle('active',x===(settings.sort||'date')));
+    document.getElementById('sort-btn').textContent={date:'↓ Date',title:'↓ Title',created:'↓ Created'}[settings.sort||'date'];
+    applyTheme(settings.theme||'light');
 
-  }catch(e){
-    document.getElementById('splash-msg').textContent='Error: '+e.message;
-    console.error(e);
-  }
+  }catch(e){document.getElementById('splash-msg').textContent='Error: '+e.message;console.error(e);}
 })();
 
-// Click outside settings modal
 document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
 document.getElementById('confirm-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm();});
-
-// Click outside modals
-document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
-document.getElementById('confirm-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm();});
+document.getElementById('pw-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePwModal();});
 </script>
 </body>
 </html>
