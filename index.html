@@ -236,11 +236,54 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
   #editor-pane,#password-pane{flex:1;min-height:0;}
 }
 @media(min-width:641px){.mobile-header{display:none;}#sidebar-backdrop{display:none!important;}}
+
+/* ---- Playbook pass: button spec + motion (transform and opacity only) ---- */
+:root{--spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.2,.8,.2,1)}
+:where(button,a,[tabindex]):focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.note-item:focus-visible,.pw-item:focus-visible{outline-offset:-3px}
+/* Tabs are real buttons now */
+.tab{background:none;border:0;border-bottom:2px solid transparent;font-family:'JetBrains Mono',monospace}
+.icon-btn{padding:0;font-family:inherit}
+/* Touch screens: every tappable control reaches 48px */
+@media (pointer:coarse){
+  .icon-btn,#new-note-btn,.sort-btn,.tbtn,.fmt-btn,.lang-btn,.copy-btn,.show-pw-btn,.mobile-menu-btn,.modal-close,.tab,#create-first-btn{min-height:48px}
+  .icon-btn,#new-note-btn,.fmt-btn,.mobile-menu-btn,.modal-close{min-width:48px}
+  .icon-btn,#new-note-btn{width:48px;height:48px}
+  .sidebar-header-right{gap:4px}
+  .search-input,.pw-field input,#tag-add-input{min-height:48px}
+  .tag-chip{min-height:36px;padding-left:12px;padding-right:12px}
+}
+/* Press: sinks fast (80ms), releases with a spring (400ms) */
+.icon-btn,.sort-btn,.tbtn,.fmt-btn,.lang-btn,.copy-btn,.show-pw-btn,.mobile-menu-btn,.modal-close,.tab,#new-note-btn,#create-first-btn{
+  transition:transform 400ms var(--spring),background-color 150ms,border-color 150ms,color 150ms,opacity 150ms}
+.icon-btn:active,.sort-btn:active,.tbtn:active,.fmt-btn:active,.lang-btn:active,.copy-btn:active,.show-pw-btn:active,.mobile-menu-btn:active,.modal-close:active,.tab:active,
+#new-note-btn:active,#create-first-btn:active{transform:scale(.94);transition-duration:80ms}
+/* Selected tab and toggle buttons pop when they turn on */
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.06)}100%{transform:none}}
+.tab.active,.lang-btn.active{animation:pop 320ms var(--spring)}
+/* Panes, the empty state and the Google menu fade in and rise */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+#editor-pane,#password-pane{animation:rise 300ms var(--out)}
+#empty-pane>*{animation:rise 420ms var(--out) backwards}
+#empty-pane>:nth-child(2){animation-delay:60ms}#empty-pane>:nth-child(3){animation-delay:120ms}#empty-pane>:nth-child(4){animation-delay:180ms}
+#pw-empty>*,#pw-detail.show{animation:rise 300ms var(--out) backwards}
+#g-dropdown{animation:rise 220ms var(--out)}
+/* Dialogs and toast */
+.modal-overlay.open,#confirm-modal.open,#sidebar-backdrop.show{animation:fadeIn 200ms ease}
+.modal,.confirm-box{animation:slideUp 260ms var(--out)}
+#toast{transform:translateY(12px);transition:opacity 220ms,transform 220ms var(--out)}
+#toast.show{transform:none}
+/* Motion off when asked; the loading bar keeps sweeping slowly so waiting is still visible */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+  .loading-bar.show{animation-duration:2.4s!important;animation-iteration-count:infinite!important}
+}
 </style>
 </head>
 <body>
 <div class="loading-bar" id="loading-bar"></div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div id="splash">
   <div class="splash-logo">Note<span>Sync</span></div>
@@ -248,8 +291,8 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 </div>
 
 <div class="mobile-header">
-  <button class="mobile-menu-btn" onclick="openSidebar()">☰</button>
-  <button class="mobile-menu-btn" id="mobile-add-btn" onclick="handleMobileAdd()">+</button>
+  <button class="mobile-menu-btn" onclick="openSidebar()" aria-label="Open menu">☰</button>
+  <button class="mobile-menu-btn" id="mobile-add-btn" onclick="handleMobileAdd()" aria-label="Add new">+</button>
 </div>
 <div id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
@@ -259,23 +302,23 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
     <div class="ring-holes"><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
     <div class="sidebar-header">
       <div class="sidebar-header-right">
-        <div class="icon-btn" id="g-profile-btn" onclick="handleGProfileClick()" title="Google Drive Sync">
-          <div class="g-avatar" id="g-avatar-inner">G</div>
-        </div>
+        <button type="button" class="icon-btn" id="g-profile-btn" onclick="handleGProfileClick()" title="Google Drive Sync" aria-label="Google Drive sync">
+          <span class="g-avatar" id="g-avatar-inner">G</span>
+        </button>
         <button class="sort-btn" onclick="cycleSort()" id="sort-btn">↓ Date</button>
-        <div class="icon-btn" onclick="openSettings()">⚙</div>
-        <button id="new-note-btn" onclick="handleAddBtn()">+</button>
+        <button type="button" class="icon-btn" onclick="openSettings()" title="Settings" aria-label="Settings">⚙</button>
+        <button id="new-note-btn" onclick="handleAddBtn()" aria-label="Add new">+</button>
       </div>
     </div>
 
     <div class="tab-bar">
-      <div class="tab active" id="tab-notes" onclick="switchTab('notes')">📝 Notes</div>
-      <div class="tab" id="tab-passwords" onclick="switchTab('passwords')">🔑 Passwords</div>
+      <button type="button" class="tab active" id="tab-notes" onclick="switchTab('notes')">📝 Notes</button>
+      <button type="button" class="tab" id="tab-passwords" onclick="switchTab('passwords')">🔑 Passwords</button>
     </div>
 
     <div id="notes-panel">
       <div class="search-wrap">
-        <input class="search-input" type="text" id="search-input" placeholder="Search notes…" oninput="renderList()">
+        <input class="search-input" type="text" id="search-input" aria-label="Search notes" placeholder="Search notes…" oninput="renderList()">
       </div>
       <div class="tags-bar" id="tags-bar"></div>
       <div id="notes-list"></div>
@@ -283,7 +326,7 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 
     <div id="passwords-panel" style="display:none;flex:1;overflow-y:auto;">
       <div class="search-wrap">
-        <input class="search-input" type="text" id="pw-search" placeholder="Search passwords…" oninput="renderPwList()">
+        <input class="search-input" type="text" id="pw-search" aria-label="Search passwords" placeholder="Search passwords…" oninput="renderPwList()">
       </div>
       <div id="passwords-list"></div>
     </div>
@@ -299,14 +342,14 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
     </div>
     <div id="editor-inner" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
       <div id="editor-toolbar">
-        <input id="note-title-input" type="text" placeholder="Note title…" oninput="onTitleChange()">
+        <input id="note-title-input" type="text" aria-label="Note title" placeholder="Note title…" oninput="onTitleChange()">
         <div class="toolbar-right">
           <button class="tbtn" id="save-btn" onclick="saveNoteToDrive()">☁ Save</button>
           <button class="tbtn danger" onclick="deleteCurrentNote()">Delete</button>
         </div>
       </div>
       <div id="tags-editor">
-        <input id="tag-add-input" type="text" placeholder="+ tag…" onkeydown="handleTagInput(event)">
+        <input id="tag-add-input" type="text" aria-label="Add tag" placeholder="+ tag…" onkeydown="handleTagInput(event)">
       </div>
       <div id="fmt-bar">
         <button class="fmt-btn" title="Bold" onclick="fmt('**','**')"><b>B</b></button>
@@ -398,7 +441,7 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 <!-- Password form modal -->
 <div class="modal-overlay" id="pw-modal">
   <div class="modal">
-    <button class="modal-close" onclick="closePwModal()">✕</button>
+    <button class="modal-close" onclick="closePwModal()" aria-label="Close">✕</button>
     <div class="modal-title" id="pw-modal-title">New Password</div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="pw-field"><label>Site / App Name *</label><input id="pf-site" type="text" placeholder="e.g. Gmail"></div>
@@ -425,7 +468,7 @@ body{background:var(--paper3);color:var(--ink);font-family:'Lora',serif;height:1
 <!-- Settings modal -->
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
-    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <button class="modal-close" onclick="closeSettings()" aria-label="Close">✕</button>
     <div class="modal-title">Settings</div>
     <div class="setting-row">
       <div><div class="setting-label">Theme</div><div class="setting-sub">Light paper or dark notebook</div></div>
@@ -781,7 +824,7 @@ function renderList(){
     const preview=(n.body||'').replace(/^- \[[ x]\] /gm,'').replace(/[*_`>#-]/g,'').trim().slice(0,70)||'Empty';
     const tagsHtml=(n.tags||[]).slice(0,3).map(t=>`<span class="ni-tag">#${t}</span>`).join('');
     const cbBadge=cbTotal?`<span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--ink3)">${cbDone}/${cbTotal}</span>`:'';
-    return `<div class="note-item${n.id===activeId?' active':''}" onclick="selectNote('${n.id}')">
+    return `<div class="note-item${n.id===activeId?' active':''}" onclick="selectNote('${n.id}')" role="button" tabindex="0">
       <div class="ni-title">${esc(n.title||'Untitled')}</div>
       <div class="ni-preview">${esc(preview)}</div>
       <div class="ni-footer"><span class="ni-date">${fmtDate(n.updatedAt)}</span><div class="ni-tags">${tagsHtml}</div>${cbBadge}${n.driveFileId?'<div class="sync-dot"></div>':''}</div>
@@ -893,7 +936,7 @@ function renderPwList(){
   if(q)list=list.filter(p=>(p.site||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q));
   if(!list.length){el.innerHTML='<div class="empty-list">No passwords yet</div>';return;}
   el.innerHTML=list.map(p=>`
-    <div class="pw-item${p.id===activePwId?' active':''}" onclick="selectPw('${p.id}')">
+    <div class="pw-item${p.id===activePwId?' active':''}" onclick="selectPw('${p.id}')" role="button" tabindex="0">
       <div class="pw-icon">${esc((p.site||'?').charAt(0).toUpperCase())}</div>
       <div class="pw-info">
         <div class="pw-site">${esc(p.site)}</div>
@@ -1167,6 +1210,27 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('ope
 document.getElementById('settings-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
 document.getElementById('confirm-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeConfirm();});
 document.getElementById('pw-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePwModal();});
+</script>
+<script>
+/* Keyboard and dialog basics */
+(function(){
+  ['pw-modal','settings-modal'].forEach(function(id){
+    var o=document.getElementById(id);if(!o)return;
+    o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+    var t=o.querySelector('.modal-title');if(t){t.id=t.id||(id+'-title');o.setAttribute('aria-labelledby',t.id);}
+  });
+  var c=document.getElementById('confirm-modal');
+  if(c){c.setAttribute('role','alertdialog');c.setAttribute('aria-modal','true');c.setAttribute('aria-labelledby','confirm-msg');}
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.note-item,.pw-item')){e.preventDefault();e.target.click();return;}
+    if(e.key!=='Escape')return;
+    if(c&&c.classList.contains('open')){closeConfirm();return;}
+    var o=document.querySelector('.modal-overlay.open');
+    if(o){var x=o.querySelector('.modal-close');if(x)x.click();return;}
+    var g=document.getElementById('g-dropdown');
+    if(g&&getComputedStyle(g).display!=='none')closeGDropdown();
+  });
+})();
 </script>
 </body>
 </html>
